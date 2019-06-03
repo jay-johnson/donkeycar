@@ -29,7 +29,7 @@ while (( "$#" )); do
             shift 2
             ;;
         -s|--splunk)
-            if [[ ! -e ${2} ]]; then
+            if [[ "${2}" == "" ]]; then
                 err "missing docker compose file for: splunk at: ${2}"
                 exit 1
             fi
@@ -55,7 +55,7 @@ while (( "$#" )); do
             shift 2
             ;;
         -r|--registry)
-            if [[ ! -e ${2} ]]; then
+            if [[ "${2}" == "" ]]; then
                 err "missing docker compose file for: registry at: ${2}"
                 exit 1
             fi
@@ -85,7 +85,7 @@ while (( "$#" )); do
             shift 2
             ;;
         -c|--camera-rec)
-            if [[ ! -e ${2} ]]; then
+            if [[ "${2}" == "" ]]; then
                 err "missing docker compose file for: camera recorder at: ${2}"
                 exit 1
             fi
@@ -97,7 +97,7 @@ while (( "$#" )); do
             shift 2
             ;;
         -e|--docker-user)
-            if [[ ! -e ${2} ]]; then
+            if [[ "${2}" == "" ]]; then
                 err "missing docker user for private registry"
                 exit 1
             fi
@@ -105,7 +105,7 @@ while (( "$#" )); do
             shift 2
             ;;
         -w|--docker-password)
-            if [[ ! -e ${2} ]]; then
+            if [[ "${2}" == "" ]]; then
                 err "missing docker password for private registry"
                 exit 1
             fi
