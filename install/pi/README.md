@@ -121,6 +121,14 @@ parted ${DEVICE} print free
 parted ${DEVICE} rn 2
 ```
 
+### SSH into the Donkey Car OS
+
+::
+
+    # ssh -i ./files/id_rsa pi@d1.example.com
+    ssh -i ./files/id_rsa pi@DONKEY_CAR_IP
+
+
 ### Install Docker After the Logging into the Donkey Car
 
 SSH into the donkey car host and install docker with the command:
