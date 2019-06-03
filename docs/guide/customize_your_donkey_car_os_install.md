@@ -2,7 +2,7 @@
 
 This guide is for [Donkey Car owners](https://www.donkeycar.com/) looking to automate their sd card installs with controls for automating the initial boot up. It has only been tested on Ubuntu.
 
-[![Automation for Customizing Your Donkey Car OS Install](https://asciinema.org/a/249687.svg)](https://asciinema.org/a/249687?autoplay=1)
+[![Automation for Customizing Your Donkey Car OS Install](https://asciinema.org/a/249781.svg)](https://asciinema.org/a/249781?autoplay=1)
 
 1. Set User and sd card device name
 
@@ -30,7 +30,7 @@ This will download, burn, resize to maximize storage, mount, deploy the latest c
 ./burn-image-to-sd-card.sh
 ```
 
-Workflow ordering and specific files in case you want to make custom modifications for your donker car os on your own:
+Workflow ordering and specific files in case you want to make custom modifications for your donkey car os on your own:
 
 [./burn-image-to-sd-card.sh](https://github.com/autorope/donkeycar/blob/dev/install/pi/burn-image-to-sd-card.sh) calls:
 

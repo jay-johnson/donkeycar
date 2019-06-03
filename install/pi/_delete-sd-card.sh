@@ -35,9 +35,9 @@ if [[ "${DEVICE}" != "/dev/sda" ]] && [[ "${DEVICE}" != "" ]] && [[ -e "${DEVICE
     anmt "sleeping for 1 seconds before deleting anything on the ${DEVICE} partitions in case you need to save"
     sleep 1
     good "deleting ${DEVICE} partition 1"
-    parted -s ${DEVICE} rm 1
+    parted -s ${DEVICE} rm 1 > /dev/null 2>&1
     good "deleting ${DEVICE} partition 2"
-    parted -s ${DEVICE} rm 2
+    parted -s ${DEVICE} rm 2 > /dev/null 2>&1
 else
     err "missing a valid device: ${DEVICE}"
     exit 1
