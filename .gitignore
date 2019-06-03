@@ -1,23 +1,25 @@
-
 env/*
 data/*
 dist/*
-
 *.pyc
 .ipynb_checkpoints
 *.egg-info/
 .git.bfg-report
 .DS_Store
 lag_log.csv
-
+.spyproject
 .cache
 site/*
 build
-
-#IDE
 .idea
-.spyproject
+.vscode
+*.swo
+*.swp
 
-.pytest_cache
-
-.coverage
+# files used during creation and burning of the donkey car rasberry pi image
+cookie
+*.img
+*.zip
+dcdisk
+id_rsa
+id_rsa.pub

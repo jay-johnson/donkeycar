@@ -1,59 +1,45 @@
-# donkeycar: a python self driving library
+# donkeycar: a python self driving library 
 
-[![Build Status](https://travis-ci.org/autorope/donkeycar.svg?branch=dev)](https://travis-ci.org/autorope/donkeycar)
-[![codecov](https://codecov.io/gh/autorope/donkeycar/branch/master/graph/badge.svg)](https://codecov.io/gh/autorope/donkeycar)
-[![PyPI version](https://badge.fury.io/py/donkeycar.svg)](https://badge.fury.io/py/donkeycar)
-[![Py versions](https://img.shields.io/pypi/pyversions/donkeycar.svg)](https://img.shields.io/pypi/pyversions/donkeycar.svg)
+![build status](https://travis-ci.org/wroscoe/donkey.svg?branch=master)
 
-Donkeycar is minimalist and modular self driving library for Python. It is
-developed for hobbyists and students with a focus on allowing fast experimentation and easy
-community contributions.
+Donkeycar is minimalist and modular self driving library written in Python. It is 
+developed for hobbiests and students with a focus on allowing fast experimentation and easy 
+community contributions.  
 
 #### Quick Links
 * [Donkeycar Updates & Examples](http://donkeycar.com)
-* [Build instructions and Software documentation](http://docs.donkeycar.com)
+* [Vehicle Build Instructions](http://www.donkeycar.com)
+* [Automation for Customizing Your Vehicle Install (works on Ubuntu)](https://github.com/jay-johnson/donkeycar/tree/dev/install/pi#automation-for-customizing-your-donkey-car-os-install)
+* [Software documentation](http://docs.donkeycar.com)
 * [Slack / Chat](https://donkey-slackin.herokuapp.com/)
-
-![donkeycar](./docs/assets/build_hardware/donkey2.PNG)
 
 #### Use Donkey if you want to:
 * Make an RC car drive its self.
 * Compete in self driving races like [DIY Robocars](http://diyrobocars.com)
-* Experiment with autopilots, mapping computer vision and neural networks.
-* Log sensor data. (images, user inputs, sensor readings)
-* Drive your car via a web or game controller.
+* Experiment with different driving methods.
+* Add parts and sensors to your car.
+* Log sensor data. (images, user inputs, sensor readings) 
+* Drive your car via a web or game controler.
 * Leverage community contributed driving data.
-* Use existing CAD models for design upgrades.
+* Use existing hardware CAD designs for upgrades.
 
-### Get driving.
-After building a Donkey2 you can turn on your car and go to http://localhost:8887 to drive.
+### Getting started. 
+After building a Donkey2, here are the steps to start driving.
 
-### Modify your cars behavior.
-The donkey car is controlled by running a sequence of events
-
-```python
-#Define a vehicle to take and record pictures 10 times per second.
-
-from donkeycar import Vehicle
-from donkeycar.parts.camera import PiCamera
-from donkeycar.parts.datastore import Tub
-
-
-V = Vehicle()
-
-#add a camera part
-cam = PiCamera()
-V.add(cam, outputs=['image'], threaded=True)
-
-#add tub part to record images
-tub = Tub(path='~/mycar/get_started',
-          inputs=['image'],
-          types=['image_array'])
-V.add(tub, inputs=['image'])
-
-#start the drive loop at 10 Hz
-V.start(rate_hz=10)
+install donkey
+```
+git clone https://github.com/wroscoe/donkey donkeycar
+pip install -e donkeycar
 ```
 
-See [home page](http://donkeycar.com), [docs](http://docs.donkeycar.com)
-or join the [Slack channel](http://www.donkeycar.com/community.html) to learn more.
+Create a car folder.
+```
+donkey createcar --path ~/d2
+```
+
+Start your car.
+```
+python ~/d2/manage.py drive
+```
+
+Now you can control your car by going to `<ip_address_of_your_pi>:8887/drive`
