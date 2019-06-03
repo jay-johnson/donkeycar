@@ -32,27 +32,27 @@ This will download, burn, resize to maximize storage, mount, deploy the latest c
 
 Workflow ordering and specific files in case you want to make custom modifications for your donker car os on your own:
 
-[./burn-image-to-sd-card.sh](https://github.com/jay-johnson/donkeycar/blob/dev/install/pi/burn-image-to-sd-card.sh) calls:
+[./burn-image-to-sd-card.sh](https://github.com/autorope/donkeycar/blob/dev/install/pi/burn-image-to-sd-card.sh) calls:
 
-    a) [./download-google-drive-dc-img.sh](https://github.com/jay-johnson/donkeycar/blob/dev/install/pi/download-google-drive-dc-img.sh)
+    a) [./download-google-drive-dc-img.sh](https://github.com/autorope/donkeycar/blob/dev/install/pi/download-google-drive-dc-img.sh)
 
-    b) [./root-resize-sd-card.sh](https://github.com/jay-johnson/donkeycar/blob/dev/install/pi/root-resize-sd-card.sh)
+    b) [./root-resize-sd-card.sh](https://github.com/autorope/donkeycar/blob/dev/install/pi/root-resize-sd-card.sh)
 
-    c) [./extend-sd-card.sh](https://github.com/jay-johnson/donkeycar/blob/dev/install/pi/extend-sd-card.sh)
+    c) [./extend-sd-card.sh](https://github.com/autorope/donkeycar/blob/dev/install/pi/extend-sd-card.sh)
 
-    d) [./mount-sd-card.sh](https://github.com/jay-johnson/donkeycar/blob/dev/install/pi/mount-sd-card.sh)
+    d) [./mount-sd-card.sh](https://github.com/autorope/donkeycar/blob/dev/install/pi/mount-sd-card.sh)
 
-    e) [./deploy.sh or custom script set before starting with: export DCDEPLOY=PATH_TO_YOUR_DEPLOY_TOOL](https://github.com/jay-johnson/donkeycar/blob/dev/install/pi/deploy.sh)
+    e) [./deploy.sh or custom script set before starting with: export DCDEPLOY=PATH_TO_YOUR_DEPLOY_TOOL](https://github.com/autorope/donkeycar/blob/dev/install/pi/deploy.sh)
 
-    f) [./unmount-sd-card.sh](https://github.com/jay-johnson/donkeycar/blob/dev/install/pi/unmount-sd-card.sh)
+    f) [./unmount-sd-card.sh](https://github.com/autorope/donkeycar/blob/dev/install/pi/unmount-sd-card.sh)
 
 ### Cutomize Startup Actions with an rc.local
 
-Edit the [./files/rc.local](https://github.com/jay-johnson/donkeycar/blob/dev/install/pi/files/rc.local) and redeploy with [./just-deploy-build-to-sd-card.sh](https://github.com/jay-johnson/donkeycar/blob/dev/install/pi/just-deploy-build-to-sd-card.sh)
+Edit the [./files/rc.local](https://github.com/autorope/donkeycar/blob/dev/install/pi/files/rc.local) and redeploy with [./just-deploy-build-to-sd-card.sh](https://github.com/autorope/donkeycar/blob/dev/install/pi/just-deploy-build-to-sd-card.sh)
 
 ### Setup your Donkey Car with a Private Docker Registry
 
-Edit the [./files/docker-daemon.json](https://github.com/jay-johnson/donkeycar/blob/dev/install/pi/files/docker-daemon.json) if you want to add a custom, private docker registry for pulling images.
+Edit the [./files/docker-daemon.json](https://github.com/autorope/donkeycar/blob/dev/install/pi/files/docker-daemon.json) if you want to add a custom, private docker registry for pulling images.
 
 ### Redeploy Files to an Existing SD Card without Downloading, Reformatting or Burning the SD Card
 
@@ -125,14 +125,14 @@ parted ${DEVICE} rn 2
 
 SSH into the donkey car host and install docker with the command:
 
-[/opt/dc/files/docker-install.sh](https://github.com/jay-johnson/donkeycar/blob/dev/install/pi/files/docker-install.sh)
+[/opt/dc/files/docker-install.sh](https://github.com/autorope/donkeycar/blob/dev/install/pi/files/docker-install.sh)
 
 ## Install Packages and Update Your Donkey Car on Startup
 
-On startup the donkey car OS uses the file: [/etc/rc.local](https://github.com/jay-johnson/donkeycar/blob/dev/install/pi/files/rc.local) to run custom actions on boot. You can customize any of these files to install and update your donkey car after burning the sd card.
+On startup the donkey car OS uses the file: [/etc/rc.local](https://github.com/autorope/donkeycar/blob/dev/install/pi/files/rc.local) to run custom actions on boot. You can customize any of these files to install and update your donkey car after burning the sd card.
 
 By default, the **rc.local** will run the following scripts if they are found on the filesystem:
 
-1. If [/opt/first_time_install.sh](https://github.com/jay-johnson/donkeycar/blob/dev/install/pi/files/first_time_install.sh) is found it will install packages
+1. If [/opt/first_time_install.sh](https://github.com/autorope/donkeycar/blob/dev/install/pi/files/first_time_install.sh) is found it will install packages
 
-2. If [/opt/run_updater.sh](https://github.com/jay-johnson/donkeycar/blob/dev/install/pi/files/run_updater.sh) is found it will run any updates
+2. If [/opt/run_updater.sh](https://github.com/autorope/donkeycar/blob/dev/install/pi/files/run_updater.sh) is found it will run any updates
