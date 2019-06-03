@@ -35,6 +35,7 @@ fi
 burn_enabled="1"
 download_enabled="1"
 dcrepo="https://github.com/jay-johnson/donkeycar.git"
+dcbranch="dev"
 
 # argument parsing code from:
 # https://medium.com/@Drew_Stokes/bash-argument-parsing-54f3b81a6a8f
@@ -86,6 +87,14 @@ while (( "$#" )); do
         dcrepo="${2}"
         shift 2
         ;;
+    -b|--gitbranch)
+        if [[ ${2} == "" ]]; then
+            err "missing github branch arg: -b dev"
+            exit 1
+        fi
+        dcbranch="${2}"
+        shift 2
+        ;;
     -d|--debug)
         export DCDEBUG="1"
         shift 1
@@ -115,6 +124,7 @@ done
 eval set -- "$PARAMS"
 
 export DCREPO="${dcrepo}"
+export DCBRANCH="${dcbranch}"
 
 anmt "checking ${DEVICE} partitions"
 parted ${DEVICE} print free

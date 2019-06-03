@@ -14,14 +14,14 @@ export DCUSER=YOUR_USER_IN_UBUNTU
 export DEVICE=/dev/sdf
 ```
 
-2. Set the Wifi SSID and Password
+1. Set the Wifi SSID and Password
 
 ```
 export WIFINAME="WIFI_SSID_NAME"
 export WIFIPASSWORD="WIFI_PASSWORD"
 ```
 
-3. Burn the Image as Root
+1. Burn the Image as Root
 
 This will download, burn, resize to maximize storage, mount, deploy the latest custom artifacts (including support for installing docker and an rc.local file), and then unmount the latest donkey car release image as the root user with the sd card inserted in to the **DEVICE** sd reader. The newly-burned filesystem will be mounted at **./dcdisk** and then the **deploy.sh** script will run to install all additional, custom files to the sd card's new OS before unmounting the sd card for use on a donkey car or just in a rasberry pi 3b+.
 
@@ -32,7 +32,7 @@ This will download, burn, resize to maximize storage, mount, deploy the latest c
 
 Workflow ordering and specific files in case you want to make custom modifications for your donker car os on your own:
 
-4. [./burn-image-to-sd-card.sh](https://github.com/jay-johnson/donkeycar/blob/dev/install/pi/burn-image-to-sd-card.sh)
+1. [./burn-image-to-sd-card.sh](https://github.com/jay-johnson/donkeycar/blob/dev/install/pi/burn-image-to-sd-card.sh)
 
     a) [./download-google-drive-dc-img.sh](https://github.com/jay-johnson/donkeycar/blob/dev/install/pi/download-google-drive-dc-img.sh)
 
@@ -72,7 +72,8 @@ Please note, these optional command arguments also work with the full **burn-ima
 ```
 ./just-deploy-build-to-sd-card.sh \
     -r CUSTOM_RCLOCAL_PATH \
-    -g CUSTOM_GITHUB_DONKEY_CAR_URL \
+    -g CUSTOM_GITHUB_REPO_URL \
+    -b CUSTOM_GITHUB_BRANCH \
     -e DOCKER_REGISTRY_USER \
     -w DOCKER_REGISTRY_PASSWORD \
     -t DOCKER_REGISTRY_ADDRESS

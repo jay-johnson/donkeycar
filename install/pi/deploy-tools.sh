@@ -20,6 +20,10 @@ dcrepo="https://github.com/jay-johnson/donkeycar.git"
 if [[ "${DCREPO}" != "" ]]; then
     dcrepo="${DCREPO}"
 fi
+dcbranch="dev"
+if [[ "${DCBRANCH}" != "" ]]; then
+    dcbranch="${DCBRANCH}"
+fi
 
 if [[ ! -e ${mountpath} ]]; then
     err "cannot deploy as mount path not found: ${mount_path}"
@@ -69,9 +73,21 @@ fi
 if [[ ! -e "${DCMOUNTPATH}/opt/dc" ]]; then
     anmt "cloning donkey car repo ${dcrepo} to: ${DCMOUNTPATH}/opt/dc"
     git clone ${dcrepo} ${DCMOUNTPATH}/opt/dc
+    if [[ ! -e "${DCMOUNTPATH}/opt/dc" ]]; then
+        err "failed to clone repo: ${dcrepo}"
+        err "git clone ${dcrepo} ${DCMOUNTPATH}/opt/dc"
+        exit 1
+    fi
+    pushd ${DCMOUNTPATH}/opt/dc >> /dev/null
+    git checkout ${dcbranch}
+    popd >> /dev/null
 else
     pushd ${DCMOUNTPATH}/opt/dc >> /dev/null
     echo ""
+    anmt "fetching $(pwd):"
+    git fetch
+    anmt "checking out ${dcbranch} $(pwd):"
+    git checkout ${dcbranch}
     anmt "pulling updates $(pwd):"
     git pull
     echo ""

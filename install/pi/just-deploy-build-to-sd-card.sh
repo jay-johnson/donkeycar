@@ -62,6 +62,14 @@ while (( "$#" )); do
         export DCREPO="${2}"
         shift 2
         ;;
+    -b|--gitbranch)
+        if [[ ${2} == "" ]]; then
+            err "missing github branch arg: -b dev"
+            exit 1
+        fi
+        dcbranch="${2}"
+        shift 2
+        ;;
     --) # end argument parsing
         shift
         break
