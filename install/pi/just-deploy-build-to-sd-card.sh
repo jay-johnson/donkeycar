@@ -56,7 +56,7 @@ while (( "$#" )); do
         ;;
     -g|--gitrepo)
         if [[ ${2} == "" ]]; then
-            err "missing github repo arg: -g https://github.com/jay-johnson/donkeycar.git"
+            err "missing github repo arg: -g https://github.com/autorope/donkeycar.git"
             exit 1
         fi
         export DCREPO="${2}"

@@ -16,7 +16,7 @@ mountpath="./dcdisk"
 if [[ "${DCMOUNTPATH}" != "" ]]; then
     mountpath="${DCMOUNTPATH}"
 fi
-dcrepo="https://github.com/jay-johnson/donkeycar.git"
+dcrepo="https://github.com/autorope/donkeycar.git"
 if [[ "${DCREPO}" != "" ]]; then
     dcrepo="${DCREPO}"
 fi

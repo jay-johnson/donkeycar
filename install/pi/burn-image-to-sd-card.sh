@@ -34,7 +34,7 @@ fi
 
 burn_enabled="1"
 download_enabled="1"
-dcrepo="https://github.com/jay-johnson/donkeycar.git"
+dcrepo="https://github.com/autorope/donkeycar.git"
 dcbranch="dev"
 
 # argument parsing code from:
@@ -81,7 +81,7 @@ while (( "$#" )); do
         ;;
     -g|--gitrepo)
         if [[ ${2} == "" ]]; then
-            err "missing github repo arg: -g https://github.com/jay-johnson/donkeycar.git"
+            err "missing github repo arg: -g https://github.com/autorope/donkeycar.git"
             exit 1
         fi
         dcrepo="${2}"
