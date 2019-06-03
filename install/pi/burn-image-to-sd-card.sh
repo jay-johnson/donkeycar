@@ -35,7 +35,7 @@ fi
 burn_enabled="1"
 download_enabled="1"
 dcrepo="https://github.com/jay-johnson/donkeycar.git"
-dcbranch="dev"
+dcbranch="d1"
 
 # argument parsing code from:
 # https://medium.com/@Drew_Stokes/bash-argument-parsing-54f3b81a6a8f
