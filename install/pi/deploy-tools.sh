@@ -104,6 +104,9 @@ if [[ -e "${DCMOUNTPATH}/opt/dc" ]]; then
     chown -R ${DCUSER}:${DCUSER} ${DCMOUNTPATH}/opt/dc
 fi
 
+anmt "setting /opt as useable"
+chmod 777 /opt
+
 custom_docker_daemon=${DCPATH}/files/docker-daemon.json
 if [[ "${DCDOCKERDAEMON}" != "" ]]; then
     custom_docker_daemon="${DCDOCKERDAEMON}"

@@ -10,6 +10,10 @@ export DCPATH=/opt/dc
 if [[ -e ${DCPATH}/install/pi/files/bash_colors.sh ]]; then
     source ${DCPATH}/install/pi/files/bash_colors.sh
 fi
+venvpath="/home/pi/env"
+if [[ "${DCVENVDIR}" != "" ]]; then
+    venvpath="${DCVENVDIR}"
+fi
 
 anmt "letting services start"
 date +"%Y-%m-%d %H:%M:%S"
@@ -32,10 +36,17 @@ apt-get install -y \
     software-properties-common \
     vim
 
+if [[ -e ${DCPATH}/install/pi/files/rebuild_pip.sh ]]; then
+    anmt "rebuilding pip in ${DCPATH}"
+    date +"installed on: %Y-%m-%d %H:%M:%S" > /tmp/pip-install.log
+    anmt "nohup ${DCPATH}/install/pi/files/rebuild_pip.sh >> /tmp/pip-install.log 2>&1 &"
+    nohup ${DCPATH}/install/pi/files/rebuild_pip.sh >> /tmp/pip-install.log 2>&1 &
+fi
+
 test_exists=$(which docker | wc -l)
 if [[ "${test_exists}" == "0" ]]; then
     if [[ -e /opt/dc/install/pi/files/docker-install.sh ]]; then
-        echo "installing docker: /opt/dc/install/pi/files/docker-install.sh"
+        anmt "installing docker: /opt/dc/install/pi/files/docker-install.sh"
         chmod 777 /opt/dc/install/pi/files/docker-install.sh
         /opt/dc/install/pi/files/docker-install.sh 2>&1 /tmp/docker-install.log
     fi
