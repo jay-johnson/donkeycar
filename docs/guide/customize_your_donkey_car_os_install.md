@@ -145,7 +145,7 @@ SSH into the donkey car host and install docker
 
 ## Install Packages and Update Your Donkey Car on Startup
 
-On startup the donkey car OS uses the file: [/etc/rc.local](https://github.com/autorope/donkeycar/blob/dev/install/pi/files/rc.local) to run custom actions on boot. You can customize any of these files to install and update your donkey car after burning the sd card.
+On startup the donkey car os uses the file: [/etc/rc.local](https://github.com/autorope/donkeycar/blob/dev/install/pi/files/rc.local) to run custom actions on boot. You can customize any of these files to install and update your donkey car after burning the sd card.
 
 By default, the **rc.local** will run the following scripts if they are found on the filesystem:
 
