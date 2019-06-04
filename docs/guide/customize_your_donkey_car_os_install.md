@@ -123,16 +123,16 @@ parted ${DEVICE} rn 2
 
 ### SSH into the Donkey Car OS
 
-::
 
-    # ssh -i ./files/id_rsa pi@d1.example.com
-    ssh -i ./files/id_rsa pi@DONKEY_CAR_IP
+```
+# ssh -i ./files/id_rsa pi@d1.example.com
+ssh -i ./files/id_rsa pi@DONKEY_CAR_IP
 
 Or with the ssh login tool:
 
-::
-
-    ./ssh-into-dc.sh d1.example.com
+```
+./ssh-into-dc.sh d1.example.com
+```
 
 ### Install Docker After the Logging into the Donkey Car
 
