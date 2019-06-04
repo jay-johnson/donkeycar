@@ -153,10 +153,17 @@ if [[ "${test_splunk}" == "1" ]]; then
     sed -i "s|REPLACE_SPLUNK_TOKEN|${splunk_token}|g" ${DCMOUNTPATH}/opt/dc/install/pi/files/config-fluent-bit-in-tcp-out-splunk.yaml
     test_token=$(cat ${DCMOUNTPATH}/opt/dc/install/pi/files/config-fluent-bit-in-tcp-out-splunk.yaml | grep REPLACE_SPLUNK_TOKEN | wc -l)
     if [[ "${test_token}" == "0" ]]; then
+        if [[ ! -e ${DCMOUNTPATH}/etc/td-agent-bit ]]; then
+            mkdir -p -m 777 ${DCMOUNTPATH}/etc/td-agent-bit
+        fi
+        if [[ ! -e ${DCMOUNTPATH}/etc/td-agent-bit/td-agent-bit.conf ]]; then
+            cp ${DCPATH}/files/td-agent-bit.conf ${DCMOUNTPATH}/etc/td-agent-bit/td-agent-bit.conf
+        fi
         test_exists=$(cat ${DCMOUNTPATH}/etc/td-agent-bit/td-agent-bit.conf | grep config-fluent-bit-in-tcp-out-splunk | wc -l)
         if [[ "${test_exists}" == "0" ]]; then
             anmt "installing splunk HEC forwarder with token: echo \"@INCLUDE /opt/dc/install/pi/files/config-fluent-bit-in-tcp-out-splunk.yaml\" >> ${DCMOUNTPATH}/etc/td-agent-bit/td-agent-bit.conf"
             echo "@INCLUDE /opt/dc/install/pi/files/config-fluent-bit-in-tcp-out-splunk.yaml" >> ${DCMOUNTPATH}/etc/td-agent-bit/td-agent-bit.conf
+            chown ${DCUSER}:${DCUSER} ${DCMOUNTPATH}/etc/td-agent-bit/td-agent-bit.conf
         fi
     fi
 fi
