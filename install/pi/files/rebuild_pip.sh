@@ -27,6 +27,9 @@ if [[ -e ${venvpath}/bin/activate ]]; then
     anmt "activating venv: ${venvpath}"
     source ${venvpath}/bin/activate
 
+    anmt "upgrading pip:"
+    pip install --upgrade pip
+
     if [[ -e ${repo_dir} ]]; then
         pushd ${repo_dir} >> /dev/null 2>&1
         anmt "checking repo status: ${repo_dir}"
