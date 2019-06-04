@@ -158,7 +158,7 @@ splunk_token="NOTFOUND"
 test_splunk=$(docker ps | grep splunk | wc -l)
 if [[ "${test_splunk}" == "1" ]]; then
     anmt "getting splunk token from splunk container"
-    splunk_token=$(docker exec -it splunk /bin/bash -c "ps auwwx ; /opt/splunk/bin/splunk http-event-collector list -uri "https://${splunk_user}:${splunk_password}@localhost:8089"" | grep 'token='  | sed -e 's/=/ /g' | awk '{print $NF}' | sed "s/\n//g" | sed "s/\r//g")
+    splunk_token=$(docker exec -it splunk /bin/bash -c "ps auwwx ; /opt/splunk/bin/splunk http-event-collector list -uri "https://${splunk_user}:${splunk_password}@localhost:8089"" | grep 'token='  | sed -e 's/=/ /g' | awk '{print $NF}' | sed "s/\n//g" | sed "s/\r//g" | head -1)
     anmt "installing splunk token: ${DCMOUNTPATH}/opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml"
     if [[ ! -e ${DCMOUNTPATH}/etc/td-agent-bit ]]; then
         mkdir -p -m 777 ${DCMOUNTPATH}/etc/td-agent-bit
@@ -172,7 +172,15 @@ if [[ "${test_splunk}" == "1" ]]; then
         chown ${DCUSER}:${DCUSER} ${DCMOUNTPATH}/opt/fluent-bit-includes/*
     fi
     sed -i "s|REPLACE_SPLUNK_TOKEN|${splunk_token}|g" ${DCMOUNTPATH}/opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml
+    if [[ "$?" != "0" ]]; then
+        err "failed to install splunk token: ${splunk_token} into file: ${DCMOUNTPATH}/opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml"
+        echo "sed -i \"s|REPLACE_SPLUNK_TOKEN|${splunk_token}|g\" ${DCMOUNTPATH}/opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml"
+        exit 1
+    fi
     sed -i "s|REPLACE_SPLUNK_HOST|${splunk_host}|g" ${DCMOUNTPATH}/opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml
+    if [[ "$?" != "0" ]]; then
+        err "failed to install splunk HEC host: ${splunk_host} into file: ${DCMOUNTPATH}/opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml"
+    fi
     test_token=$(cat ${DCMOUNTPATH}/opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml | grep REPLACE_SPLUNK_TOKEN | wc -l)
     if [[ "${test_token}" == "0" ]]; then
         anmt "installing new token into: ${DCMOUNTPATH}/opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml"
