@@ -27,8 +27,35 @@ if [[ -e ${venvpath}/bin/activate ]]; then
     anmt "activating venv: ${venvpath}"
     source ${venvpath}/bin/activate
 
-    anmt "upgrading pip:"
-    pip install --upgrade pip
+    anmt "upgrading pip and setuptools:"
+    pip install --upgrade pip setuptools
+
+    upgrade_scipy=""
+    test_scipy=$(pip list --format columns | grep scipy | wc -l)
+    if [[ "${test_scipy}" == "0" ]]; then
+        scipy_version="scipy-1.2.1-cp35-cp35m-linux_armv7l.whl"
+        if [[ "${upgrade_scipy}" != "" ]]; then
+            scipy_version="${upgrade_scipy}"
+        fi
+        scipy_download_file="/opt/downloads/pip/scipy.whl"
+        scipy_url="https://www.piwheels.org/simple/scipy/${scipy_version}#sha256=270be300233af556e6ee3f55a0ae237df0cb65ac85d47559010d7a9071f2e878"
+        if [[ ! -e ${scipy_download_file} ]]; then
+            anmt "downloading scipy: ${scipy_version} from ${scipy_url}"
+            wget "${scipy_url}" -O ${scipy_download_file}
+        fi
+        if [[ ! -e ${scipy_download_file} ]]; then
+            err "failed to download scipy update to version: ${scipy_download_file} with:"
+            err "wget \"${scipy_url}\" -O ${scipy_download_file}"
+            exit 1
+        fi
+        anmt "installing scipy: ${scipy_download_file}"
+        pip install ${scipy_download_file}
+        if [[ "$?" != "0" ]]; then
+            err "failed to install ${scipy_download_file} with command:"
+            err "pip install ${scipy_download_file}"
+            exit 1
+        fi
+    fi
 
     if [[ -e ${repo_dir} ]]; then
         pushd ${repo_dir} >> /dev/null 2>&1
@@ -40,7 +67,7 @@ if [[ -e ${venvpath}/bin/activate ]]; then
         pip install --upgrade -e .
         popd >> /dev/null 2>&1
     else
-        err "did not find repo_dir=${repo_dir}"
+        err "did not find repo_dir: ${repo_dir}"
         exit 1
     fi
 else

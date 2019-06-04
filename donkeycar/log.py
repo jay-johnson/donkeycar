@@ -91,14 +91,58 @@ def get_log(
         config_dict=None):
     """get_log
 
+    common call for creating logger
+
+    **Log to Stdout**
+
+    ::
+
+        import datetime
+        import donkeycar.log as log_utils
+
+        log = log_utils.get_log(
+            name=__name__)
+
+        log.info(
+            'test log message {}'.format(
+                datetime.datetime.utcnow()))
+
+    **Log to Splunk using the Local Fluent Bit Forwarder**
+
+    ::
+
+        import datetime
+        import donkeycar.log as log_utils
+
+        log = log_utils.get_log(
+            name='test-fluent-bit-logging',
+            config='/opt/dc/donkeycar/splunk/log_config.json')
+
+        log.info(
+            'test log message for splunk {}'.format(
+                datetime.datetime.utcnow()))
+
+    **Supported Environment Variables**
+
+    ::
+
+        export DCLOGCONFIG=PATH_TO_LOG_CONFIG_DICT
+
     :param name: name of the logger (usually the module's name)
     :param log_file_path: optional - path to output log file
     :param config: optional - path to log JSON-formatted config file
+        (None by default, and sample included in the repo:
+        /opt/dc/donkeycar/splunk/log_config.json)
     :param config_dict: optional - log dictionary config
     """
+    log_config = config
+    if not log_config:
+        log_config = os.getenv(
+            'DCLOGCONFIG',
+            None)
     setup(
         log_file_path=log_file_path,
-        config=config,
+        config=log_config,
         config_dict=config_dict)
     return get_logger(
         name=name)

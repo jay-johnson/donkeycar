@@ -33,7 +33,10 @@ apt-get install -y \
     -o Dpkg::Options::="--force-confold" --force-yes \
     apt-transport-https \
     ca-certificates \
+    curl \
     git \
+    libffi-dev \
+    netcat \
     net-tools \
     software-properties-common \
     vim
