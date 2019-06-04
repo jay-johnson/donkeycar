@@ -37,7 +37,7 @@ if [[ "${DCSPLUNKHOST}" != "" ]]; then
     splunk_host="${DCSPLUNKHOST}"
 fi
 # default packages to install
-initial_packages_to_install="apt-transport-https ca-certificates curl git libffi-dev libssl libssl-dev netcat net-tools software-properties-common vim"
+initial_packages_to_install="apt-transport-https ca-certificates curl git libffi-dev libssl-dev netcat net-tools software-properties-common vim"
 if [[ "${DCINSTALLPACKAGES}" != "" ]]; then
     initial_packages_to_install="${DCINSTALLPACKAGES}"
 fi
