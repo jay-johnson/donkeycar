@@ -1,11 +1,5 @@
 #!/bin/bash
 
-test_exists=$(which docker | wc -l)
-if [[ "${test_exists}" != "0" ]]; then
-    echo "docker is already installed"
-    exit 0
-fi
-
 repo_dir="/opt/dc"
 if [[ "${DCPATH}" != "" ]]; then
     repo_dir="${DCPATH}"
@@ -13,7 +7,7 @@ fi
 if [[ -e ${repo_dir}/install/pi/files/bash_colors.sh ]]; then
     source ${repo_dir}/install/pi/files/bash_colors.sh
 fi
-venvpath="/home/pi/env"
+venvpath="/opt/venv"
 if [[ "${DCVENVDIR}" != "" ]]; then
     venvpath="${DCVENVDIR}"
 fi
@@ -37,7 +31,7 @@ if [[ -e ${venvpath}/bin/activate ]]; then
         if [[ "${upgrade_scipy}" != "" ]]; then
             scipy_version="${upgrade_scipy}"
         fi
-        scipy_download_file="/opt/downloads/pip/scipy.whl"
+        scipy_download_file="/opt/downloads/pip/${scipy_version}"
         scipy_url="https://www.piwheels.org/simple/scipy/${scipy_version}#sha256=270be300233af556e6ee3f55a0ae237df0cb65ac85d47559010d7a9071f2e878"
         if [[ ! -e ${scipy_download_file} ]]; then
             anmt "downloading scipy: ${scipy_version} from ${scipy_url}"

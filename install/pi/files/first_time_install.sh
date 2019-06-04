@@ -1,18 +1,8 @@
 #!/bin/bash
 
-test_exists=$(which docker | wc -l)
-if [[ "${test_exists}" != "0" ]]; then
-    echo "docker is already installed"
-    exit 0
-fi
-
 export DCPATH=/opt/dc
 if [[ -e ${DCPATH}/install/pi/files/bash_colors.sh ]]; then
     source ${DCPATH}/install/pi/files/bash_colors.sh
-fi
-venvpath="/home/pi/env"
-if [[ "${DCVENVDIR}" != "" ]]; then
-    venvpath="${DCVENVDIR}"
 fi
 
 anmt "letting services start"
