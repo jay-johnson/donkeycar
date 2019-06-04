@@ -62,13 +62,12 @@ def setup(
         }
     }
 
-    if config is None:
-        log_config = os.getenv(
-            'DCLOGCONFIG',
-            None)
-        if log_config:
-            config_dict = json.loads(
-                open(log_config, 'r').read())
+    log_config = os.getenv(
+        'DCLOGCONFIG',
+        config)
+    if log_config:
+        config_dict = json.loads(
+            open(log_config, 'r').read())
 
     logging.config.dictConfig(
         config_dict)

@@ -32,6 +32,10 @@ splunk_password="123321"
 if [[ "${DCSPLUNKPASSWORD}" != "" ]]; then
     splunk_password="${DCSPLUNKPASSWORD}"
 fi
+splunk_host="logs.example.com"
+if [[ "${DCSPLUNKHOST}" != "" ]]; then
+    splunk_host="${DCSPLUNKHOST}"
+fi
 
 if [[ ! -e ${mountpath} ]]; then
     err "cannot deploy as mount path not found: ${mount_path}"
@@ -168,6 +172,7 @@ if [[ "${test_splunk}" == "1" ]]; then
         chown ${DCUSER}:${DCUSER} ${DCMOUNTPATH}/opt/fluent-bit-includes/*
     fi
     sed -i "s|REPLACE_SPLUNK_TOKEN|${splunk_token}|g" ${DCMOUNTPATH}/opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml
+    sed -i "s|REPLACE_SPLUNK_HOST|${splunk_host}|g" ${DCMOUNTPATH}/opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml
     test_token=$(cat ${DCMOUNTPATH}/opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml | grep REPLACE_SPLUNK_TOKEN | wc -l)
     if [[ "${test_token}" == "0" ]]; then
         anmt "installing new token into: ${DCMOUNTPATH}/opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml"

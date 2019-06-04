@@ -17,7 +17,8 @@ def package_files(directory, strip_leading):
 
 car_templates = ["templates/*"]
 web_controller_html = package_files(
-    "donkeycar/parts/controllers/templates", "donkeycar/"
+    "donkeycar/parts/controllers/templates",
+    "donkeycar/"
 )
 
 
@@ -84,5 +85,14 @@ setup(
         "Programming Language :: Python :: 3.6",
     ],
     keywords="selfdriving cars drive",
-    packages=find_packages(exclude=(["tests", "docs", "site", "env"])),
+    packages=find_packages(
+        exclude=(
+            [
+                "tests",
+                "docs",
+                "site",
+                "env"
+            ]
+        )
+    ),
 )
