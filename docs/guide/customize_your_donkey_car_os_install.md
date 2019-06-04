@@ -175,12 +175,47 @@ http://logs.example.com:8000/en-US/app/search/search?q=search%20index%3Ddc
 
 1. Login to Splunk
 
-2. Search
+2. Publish Logs to Splunk from a Donkey Car
+
+Please run this from a donkey car that has the Fluent Bit agent running with a valid HEC Splunk Token:
+
+```
+/opt/dc/install/pi/files/test_fluent_bit.py
+```
+
+3. Search for Logs
 
 By default, logs from any donkey car app are searchable from the index:
 
 ```
 index=dc
+```
+
+#### Get HEC Token
+
+The burn tool automatically installs the Splunk HEC Token named **dc-token** into an sd card. You can also view the HEC token from within Splunk here:
+
+http://logs.example.com:8000/en-US/manager/search/http-eventcollector
+
+You can also run this command if you are on the host running the included splunk container:
+
+```
+# run from the base of the repo:
+./donkeycar/splunk/get_token.sh
+```
+
+##### HEC Token Updates
+
+If you need to roll the cars to a new HEC token, then please update the splunk token manually in all donkey car sd cards at this file location:
+
+```
+/opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml
+...
+[OUTPUT]
+    ...
+    Name            splunk
+    ...
+    Splunk_Token    NEW_SPLUNK_TOKEN
 ```
 
 ### Debugging Splunk Token Issues
