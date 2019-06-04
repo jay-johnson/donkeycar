@@ -192,10 +192,13 @@ fi
 scipy_version="scipy-1.2.1-cp35-cp35m-linux_armv7l.whl"
 scipy_url="https://www.piwheels.org/simple/scipy/${scipy_version}#sha256=270be300233af556e6ee3f55a0ae237df0cb65ac85d47559010d7a9071f2e878"
 scipy_download_file="${DCMOUNTPATH}/opt/downloads/pip/scipy.whl"
-anmt "downloading newer scipy wheel file for install on the donkey car first time boot"
-wget ${scipy_url} -O ${scipy_download_file}
-chmod 666 ${scipy_download_file}
-chown ${DCUSER}:${DCUSER} ${scipy_download_file}
+
+if [[ ! -e ${scipy_download_file} ]]; then
+    anmt "downloading newer scipy wheel file for install on the donkey car first time boot"
+    wget ${scipy_url} -O ${scipy_download_file}
+    chmod 666 ${scipy_download_file}
+    chown ${DCUSER}:${DCUSER} ${scipy_download_file}
+fi
 
 if [[ ! -e ${scipy_download_file} ]]; then
     err "failed to download ${scipy_version} from url: ${scipy_url}"
