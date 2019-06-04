@@ -128,10 +128,17 @@ parted ${DEVICE} rn 2
     # ssh -i ./files/id_rsa pi@d1.example.com
     ssh -i ./files/id_rsa pi@DONKEY_CAR_IP
 
+Or with the ssh login tool:
+
+::
+
+    ./ssh-into-dc.sh d1.example.com
 
 ### Install Docker After the Logging into the Donkey Car
 
-SSH into the donkey car host and install docker with the command:
+SSH into the donkey car host and install docker
+
+#### Run the Docker Installer
 
 [/opt/dc/files/docker-install.sh](https://github.com/autorope/donkeycar/blob/dev/install/pi/files/docker-install.sh)
 
