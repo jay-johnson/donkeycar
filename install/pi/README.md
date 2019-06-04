@@ -127,6 +127,7 @@ parted ${DEVICE} rn 2
 ```
 # ssh -i ./files/id_rsa pi@d1.example.com
 ssh -i ./files/id_rsa pi@DONKEY_CAR_IP
+```
 
 Or with the ssh login tool:
 
