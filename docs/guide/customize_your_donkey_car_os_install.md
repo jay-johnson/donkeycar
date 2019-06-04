@@ -185,9 +185,13 @@ index=dc
 
 ### Debugging Splunk Token Issues
 
-Here is a python command for quickly testing a config file works with your Splunk HEC Token and Fluent Bit from within a donkey car ssh session:
+Here is a python command for quickly testing the Fluent Bit's Splunk config file ([installed at /opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml](https://github.com/jay-johnson/donkeycar/blob/d1/install/pi/files/config-fluent-bit-in-tcp-out-splunk.yaml)) works with your Splunk HEC Token. Please run this from a donkey car ssh session:
 
-::
-
-    source /opt/venv/bin/activate
-    python -c "from donkeycar.log import get_log;log = get_log('testing', config='/opt/dc/donkeycar/splunk/log_config.json');log.info('sent using fluentd - DONE');"
+```
+source /opt/venv/bin/activate
+python -c "from donkeycar.log import get_log; import datetime; \
+    log = get_log('testing', config='/opt/dc/donkeycar/splunk/log_config.json'); \
+    log.info(
+        'hello from dc1 sent at: {}'.format(
+            datetime.datetime.utcnow()))"
+```
