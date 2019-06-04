@@ -171,7 +171,7 @@ Use these default splunk login credentials with the login url below:
 - user **pi**
 - password **123321**
 
-http://logs.example.com:8000
+http://logs.example.com:8000/en-US/app/search/search?q=search%20index%3Ddc
 
 1. Login to Splunk
 
