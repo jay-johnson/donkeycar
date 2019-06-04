@@ -144,3 +144,11 @@ By default, the **rc.local** will run the following scripts if they are found on
 1. If [/opt/first_time_install.sh](https://github.com/autorope/donkeycar/blob/dev/install/pi/files/first_time_install.sh) is found it will install packages
 
 2. If [/opt/run_updater.sh](https://github.com/autorope/donkeycar/blob/dev/install/pi/files/run_updater.sh) is found it will run any updates
+
+### Logging with Splunk
+
+::
+
+    python -c "from donkeycar.log import get_log;log = get_log('testing', config='/opt/dc/donkeycar/splunk/log_config.json');log.info('sent using fluentd - DONE');"
+
+
