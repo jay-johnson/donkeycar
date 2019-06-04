@@ -36,6 +36,11 @@ splunk_host="logs.example.com"
 if [[ "${DCSPLUNKHOST}" != "" ]]; then
     splunk_host="${DCSPLUNKHOST}"
 fi
+# default packages to install
+initial_packages_to_install="apt-transport-https ca-certificates curl git libffi-dev netcat net-tools software-properties-common vim"
+if [[ "${DCINSTALLPACKAGES}" != "" ]]; then
+    initial_packages_to_install="${DCINSTALLPACKAGES}"
+fi
 
 if [[ ! -e ${mountpath} ]]; then
     err "cannot deploy as mount path not found: ${mount_path}"
@@ -117,7 +122,7 @@ if [[ -e "${DCMOUNTPATH}/opt/dc" ]]; then
 fi
 
 anmt "setting /opt as useable"
-chmod 777 /opt
+chmod 777 ${DCMOUNTPATH}/opt
 
 custom_docker_daemon=${DCPATH}/files/docker-daemon.json
 if [[ "${DCDOCKERDAEMON}" != "" ]]; then
@@ -178,6 +183,14 @@ if [[ "${test_splunk}" == "1" ]]; then
         err "failed to install splunk HEC host: ${splunk_host} into file: ${DCMOUNTPATH}/opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml"
     fi
 fi
+
+# trigger first time installs of packages and upgrades
+echo "${initial_packages_to_install}" >> ${DCMOUNTPATH}/opt/install-packages
+chmod 666 ${DCMOUNTPATH}/opt/install-packages
+chown ${DCUSER}:${DCUSER} ${DCMOUNTPATH}/opt/install-packages
+touch ${DCMOUNTPATH}/opt/upgrade-packages
+chmod 666 ${DCMOUNTPATH}/opt/upgrade-packages
+chown ${DCUSER}:${DCUSER} ${DCMOUNTPATH}/opt/upgrade-packages
 
 if [[ ! -e ${DCMOUNTPATH}/opt/downloads ]]; then
     mkdir -p -m 777 ${DCMOUNTPATH}/opt/downloads

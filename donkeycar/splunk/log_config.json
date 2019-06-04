@@ -40,7 +40,7 @@
     },
     "splunk": {
       "class": "donkeycar.splunk.tcp_splunk_publisher.TCPSplunkPublisher",
-      "address": "logs.example.com:24224",
+      "address": "0.0.0.0:24224",
       "token": null,
       "index": "dc",
       "formatter": "splunk",

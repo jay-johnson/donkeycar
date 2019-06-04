@@ -21,11 +21,19 @@ else
     echo "deb http://packages.fluentbit.io/raspbian jessie main" >> /etc/apt/sources.list
 fi
 
-anmt "getting package updates"
-apt-get update -y
+test_exists=$(sudo dpkg -S td-agent-bit | wc -l)
+if [[ "${test_exists}" == "0" ]]; then
+    anmt "getting package updates"
+    sudo apt-get update -y
 
-anmt "installing fluent bit"
-apt-get install td-agent-bit -y
+    anmt "installing fluent bit"
+    sudo apt-get install -y \
+        td-agent-bit
+    if [[ "$?" != "0" ]]; then
+        err "failed to install td-agent-bit"
+        exit 1
+    fi
+fi
 
 anmt "checking if splunk is enabled"
 test_token=$(cat /opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml | grep REPLACE_SPLUNK_TOKEN | wc -l)
@@ -34,6 +42,7 @@ if [[ "${test_token}" == "0" ]]; then
     test_exists=$(cat /etc/td-agent-bit/td-agent-bit.conf | grep config-fluent-bit-in-tcp-out-splunk | wc -l)
     if [[ "${test_exists}" == "0" ]]; then
         anmt "installing splunk HEC forwarder with token: echo \"@INCLUDE /opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml >> /etc/td-agent-bit/td-agent-bit.conf"
+        sudo chmod 666 /etc/td-agent-bit/td-agent-bit.conf
         echo "" >> /etc/td-agent-bit/td-agent-bit.conf
         echo "# Adding Splunk HEC Forwarder" >> /etc/td-agent-bit/td-agent-bit.conf
         echo "@INCLUDE /opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml" >> /etc/td-agent-bit/td-agent-bit.conf
@@ -41,11 +50,14 @@ if [[ "${test_token}" == "0" ]]; then
 fi
 
 anmt "reloading daemon"
-systemctl daemon-reload
+sudo systemctl daemon-reload
 anmt "enabling fluent bit on reboot"
-systemctl td-agent-bit enable
+sudo systemctl enable td-agent-bit
 anmt "starting fluent bit"
-systemctl td-agent-bit start
+sudo systemctl start td-agent-bit
+# this can hang automation:
+# anmt "checking fluent bit status"
+# sudo systemctl status td-agent-bit
 
 good "done - installing fluent bit"
 
