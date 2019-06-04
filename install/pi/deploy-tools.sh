@@ -25,7 +25,13 @@ if [[ "${DCBRANCH}" != "" ]]; then
     dcbranch="${DCBRANCH}"
 fi
 splunk_user="pi"
+if [[ "${DCSPLUNKUSER}" != "" ]]; then
+    splunk_user="${DCSPLUNKUSER}"
+fi
 splunk_password="123321"
+if [[ "${DCSPLUNKPASSWORD}" != "" ]]; then
+    splunk_password="${DCSPLUNKPASSWORD}"
+fi
 
 if [[ ! -e ${mountpath} ]]; then
     err "cannot deploy as mount path not found: ${mount_path}"
@@ -148,7 +154,7 @@ splunk_token="NOTFOUND"
 test_splunk=$(docker ps | grep splunk | wc -l)
 if [[ "${test_splunk}" == "1" ]]; then
     anmt "getting splunk token from splunk container"
-    splunk_token=$(docker exec -it splunk /bin/bash -c "ps auwwx ; /opt/splunk/bin/splunk http-event-collector list -uri "https://${splunk_user}:${splunk_password}@localhost:8089"" | grep 'token='  | sed -e 's/=/ /g' | awk '{print $NF}' | sed -e 's/\n/ /g')
+    splunk_token=$(docker exec -it splunk /bin/bash -c "ps auwwx ; /opt/splunk/bin/splunk http-event-collector list -uri "https://${splunk_user}:${splunk_password}@localhost:8089"" | grep 'token='  | sed -e 's/=/ /g' | awk '{print $NF}' | sed "s/\n//g" | sed "s/\r//g")
     anmt "installing splunk token: ${DCMOUNTPATH}/opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml"
     if [[ ! -e ${DCMOUNTPATH}/etc/td-agent-bit ]]; then
         mkdir -p -m 777 ${DCMOUNTPATH}/etc/td-agent-bit
@@ -162,7 +168,6 @@ if [[ "${test_splunk}" == "1" ]]; then
         chown ${DCUSER}:${DCUSER} ${DCMOUNTPATH}/opt/fluent-bit-includes/*
     fi
     sed -i "s|REPLACE_SPLUNK_TOKEN|${splunk_token}|g" ${DCMOUNTPATH}/opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml
-    sed -ni 's|\n| |' ${DCMOUNTPATH}/opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml
     test_token=$(cat ${DCMOUNTPATH}/opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml | grep REPLACE_SPLUNK_TOKEN | wc -l)
     if [[ "${test_token}" == "0" ]]; then
         anmt "installing new token into: ${DCMOUNTPATH}/opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml"
