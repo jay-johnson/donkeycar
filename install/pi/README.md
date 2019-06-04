@@ -152,10 +152,42 @@ By default, the **rc.local** will run the following scripts if they are found on
 
 2. If [/opt/run_updater.sh](https://github.com/autorope/donkeycar/blob/dev/install/pi/files/run_updater.sh) is found it will run any updates
 
-### Logging with Splunk
+### Setting up Splunk Logging
+
+By following this guide's installer your donkey car os is ready for log and system metric aggregation using [Fluent Bit listening on TCP 24224](https://docs.fluentbit.io/manual/v/1.1/input/tcp) that automatically [forwards to a remote-hosted Splunk HEC Rest API](https://docs.fluentbit.io/manual/v/1.1/output/splunk).
+
+[IoT log and metric pipeline using Fluent Bit and Splunk - you can start your log search with: index=dc](https://i.imgur.com/h4CkC9H.png)
+
+#### Where do I get splunk?
+
+There is an included, dockerized splunk container that runs from the base of the repository. Please note, it requires having docker-compose to use:
+
+```
+./compose/start.sh -s ./compose/splunk/splunk.yaml
+```
+
+Use these default splunk login credentials with the login url below:
+
+- user **pi**
+- password **123321**
+
+http://logs.example.com:8000
+
+1. Login to Splunk
+
+2. Search
+
+By default, logs from any donkey car app are searchable from the index:
+
+```
+index=dc
+```
+
+### Debugging Splunk Token Issues
+
+Here is a python command for quickly testing a config file works with your Splunk HEC Token and Fluent Bit from within a donkey car ssh session:
 
 ::
 
+    source /opt/venv/bin/activate
     python -c "from donkeycar.log import get_log;log = get_log('testing', config='/opt/dc/donkeycar/splunk/log_config.json');log.info('sent using fluentd - DONE');"
-
-
