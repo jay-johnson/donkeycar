@@ -159,6 +159,13 @@ anmt "cp ${DCPATH}/files/first_time_install.sh ${DCMOUNTPATH}/opt/first_time_ins
 cp ${DCPATH}/files/first_time_install.sh ${DCMOUNTPATH}/opt/first_time_install.sh
 chmod 777 ${DCMOUNTPATH}/opt/first_time_install.sh
 
+echo "created on $(date +"%Y-%m-%d %H:%M:%S")" > ${DCMOUNTPATH}/var/log/sdinstall.log
+echo "created on $(date +"%Y-%m-%d %H:%M:%S")" > ${DCMOUNTPATH}/var/log/sdrepo.log
+echo "created on $(date +"%Y-%m-%d %H:%M:%S")" > ${DCMOUNTPATH}/var/log/sdupdate.log
+chmod 666 ${DCMOUNTPATH}/var/log/sdinstall.log
+chmod 666 ${DCMOUNTPATH}/var/log/sdrepo.log
+chmod 666 ${DCMOUNTPATH}/var/log/sdupdate.log
+
 splunk_token="NOTFOUND"
 test_splunk=$(docker ps | grep splunk | wc -l)
 if [[ "${test_splunk}" == "1" ]]; then

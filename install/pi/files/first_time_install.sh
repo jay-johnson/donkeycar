@@ -23,20 +23,20 @@ anmt "getting updates"
 date +"%Y-%m-%d %H:%M:%S"
 sudo apt-get update -y \
     -o "Dpkg::Options::=--force-confdef" \
-    -o "Dpkg::Options::=--force-confold"
+    -o "Dpkg::Options::=--force-confold" >> /var/log/sdupdate.log 2>&1
 
 if [[ -e /opt/upgrade-packages ]]; then
     anmt "starting upgrade"
     date +"%Y-%m-%d %H:%M:%S"
     # from blog: https://raymii.org/s/blog/Raspberry_Pi_Raspbian_Unattended_Upgrade_Jessie_to_Testing.html
-    sudo DEBIAN_FRONTEND=noninteractive DEBIAN_PRIORITY=critical apt-get -q -y -o "Dpkg::Options::=--force-confdef" -o "Dpkg::Options::=--force-confold" dist-upgrade
+    sudo DEBIAN_FRONTEND=noninteractive DEBIAN_PRIORITY=critical apt-get -q -y -o "Dpkg::Options::=--force-confdef" -o "Dpkg::Options::=--force-confold" dist-upgrade >> /var/log/sdupdate.log 2>&1
     if [[ "$?" != "0" ]]; then
         err "failed to upgrade before installing initial packages"
         exit 1
     else
         # Remove no longer needed packages
         anmt "removing stale packages now that the upgrade is done"
-        sudo DEBIAN_FRONTEND=noninteractive DEBIAN_PRIORITY=critical apt-get -q -y -o "Dpkg::Options::=--force-confdef" -o "Dpkg::Options::=--force-confold" autoremove --purge
+        sudo DEBIAN_FRONTEND=noninteractive DEBIAN_PRIORITY=critical apt-get -q -y -o "Dpkg::Options::=--force-confdef" -o "Dpkg::Options::=--force-confold" autoremove --purge >> /var/log/sdupdate.log 2>&1
         date +"%Y-%m-%d %H:%M:%S"
         good "upgrade packages - complete"
     fi
@@ -52,7 +52,7 @@ if [[ -e /opt/install-packages ]]; then
     date +"%Y-%m-%d %H:%M:%S"
     sudo apt-get install -y \
         -o "Dpkg::Options::=--force-confdef" -o "Dpkg::Options::=--force-confold" \
-        ${install_packages}
+        ${install_packages} >> /var/log/sdinstall.log 2>&1
 
     if [[ "$?" != "0" ]]; then
         err "failed to initial packages: ${install_packages}"
@@ -68,37 +68,24 @@ else
 fi
 
 if [[ -e ${DCPATH}/install/pi/files/rebuild_pip.sh ]]; then
-    anmt "rebuilding pip in ${DCPATH}"
-    if [[ ! -e /tmp/pip-install.log ]]; then
-        sudo touch /tmp/pip-install.log
-        sudo chmod 666 /tmp/pip-install.log
-    fi
-    date +"installed on: %Y-%m-%d %H:%M:%S" > /tmp/pip-install.log
-    anmt "${DCPATH}/install/pi/files/rebuild_pip.sh >> /tmp/pip-install.log 2>&1 &"
-    ${DCPATH}/install/pi/files/rebuild_pip.sh >> /tmp/pip-install.log 2>&1 &
+    anmt "rebuilding pip in ${DCPATH} with: ${DCPATH}/install/pi/files/rebuild_pip.sh"
+    chmod 777 ${DCPATH}/install/pi/files/rebuild_pip.sh
+    ${DCPATH}/install/pi/files/rebuild_pip.sh >> /var/log/sdrepo.log 2>&1
 fi
 
 # https://docs.fluentbit.io/manual/getting_started
 if [[ -e ${DCPATH}/install/pi/files/fluent-bit-install.sh ]]; then
-    anmt "installing fluent bit: ${DCPATH}/install/pi/files/fluent-bit-install.sh"
-    if [[ ! -e /tmp/fluent-bit-install.log ]]; then
-        sudo touch /tmp/fluent-bit-install.log
-        sudo chmod 666 /tmp/fluent-bit-install.log
-    fi
+    anmt "installing fluent bit with: ${DCPATH}/install/pi/files/fluent-bit-install.sh"
     chmod 777 ${DCPATH}/install/pi/files/fluent-bit-install.sh
-    ${DCPATH}/install/pi/files/fluent-bit-install.sh 2>&1 /tmp/fluent-bit-install.log
+    ${DCPATH}/install/pi/files/fluent-bit-install.sh >> /var/log/sdinstall.log 2>&1
 fi
 
 test_exists=$(which docker | wc -l)
 if [[ "${test_exists}" == "0" ]]; then
     if [[ -e ${DCPATH}/install/pi/files/docker-install.sh ]]; then
         anmt "installing docker: ${DCPATH}/install/pi/files/docker-install.sh"
-        if [[ ! -e /tmp/docker-install.log ]]; then
-            sudo touch /tmp/docker-install.log
-            sudo chmod 666 /tmp/docker-install.log
-        fi
         chmod 777 ${DCPATH}/install/pi/files/docker-install.sh
-        ${DCPATH}/install/pi/files/docker-install.sh 2>&1 /tmp/docker-install.log
+        ${DCPATH}/install/pi/files/docker-install.sh >> /var/log/sdinstall.log 2>&1
     fi
 fi
 
