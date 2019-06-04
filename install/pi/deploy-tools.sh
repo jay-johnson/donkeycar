@@ -161,7 +161,7 @@ if [[ "${test_splunk}" == "1" ]]; then
         chmod 775 ${DCMOUNTPATH}/opt/fluent-bit-includes/*
         chown ${DCUSER}:${DCUSER} ${DCMOUNTPATH}/opt/fluent-bit-includes/*
     fi
-sed -i "s|REPLACE_SPLUNK_TOKEN|${splunk_token}|g" ${DCMOUNTPATH}/opt/dc/install/pi/files/config-fluent-bit-in-tcp-out-splunk.yaml
+    sed -i "s|REPLACE_SPLUNK_TOKEN|${splunk_token}|g" ${DCMOUNTPATH}/opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml
     test_token=$(cat ${DCMOUNTPATH}/opt/dc/install/pi/files/config-fluent-bit-in-tcp-out-splunk.yaml | grep REPLACE_SPLUNK_TOKEN | wc -l)
     if [[ "${test_token}" == "0" ]]; then
         if [[ ! -e ${DCMOUNTPATH}/etc/td-agent-bit ]]; then
