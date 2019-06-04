@@ -84,6 +84,18 @@ while (( "$#" )); do
             anmt "echo \"DOCKER_PASSWORD\" | docker login --username ${DCDOCKERUSER} --password-stdin 0.0.0.0:5000"
             shift 2
             ;;
+        -f|--fluentd)
+            if [[ "${2}" == "" ]]; then
+                err "missing docker compose file for: fluentd at: ${2}"
+                exit 1
+            fi
+            if [[ "${compose_files}" == "" ]]; then
+                compose_files="${2}"
+            else
+                compose_files="${compose_files} ${2}"
+            fi
+            shift 2
+            ;;
         -c|--camera-rec)
             if [[ "${2}" == "" ]]; then
                 err "missing docker compose file for: camera recorder at: ${2}"

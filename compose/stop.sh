@@ -45,6 +45,18 @@ while (( "$#" )); do
             fi
             shift 2
             ;;
+        -f|--fluentd)
+            if [[ "${2}" == "" ]]; then
+                err "missing docker compose file for: fluentd at: ${2}"
+                exit 1
+            fi
+            if [[ "${compose_files}" == "" ]]; then
+                compose_files="${2}"
+            else
+                compose_files="${compose_files} ${2}"
+            fi
+            shift 2
+            ;;
         -c|--camera-rec)
             if [[ ! -e ${2} ]]; then
                 err "missing docker compose file for: camera recorder at: ${2}"

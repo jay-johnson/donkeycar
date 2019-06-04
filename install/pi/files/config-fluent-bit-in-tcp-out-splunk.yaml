@@ -1,0 +1,19 @@
+# https://docs.fluentbit.io/manual/input/forward
+[INPUT]
+    Name              forward
+    Listen            0.0.0.0
+    Port              24224
+    Buffer_Chunk_Size 32KB
+    Buffer_Max_Size   64KB
+
+# https://docs.fluentbit.io/manual/output/splunk
+[OUTPUT]
+    Name        splunk
+    Match       *
+    Host        192.168.0.100
+    Port        8089
+    HTTP_User   pi
+    HTTP_Passwd 123321
+    # find the token with this command:
+    # docker exec -it splunk /bin/bash -c "ps auwwx ; /opt/splunk/bin/splunk http-event-collector list -uri "https://pi:123321@localhost:8089"" | grep 'token='  | sed -e 's/=/ /g' | awk '{print $NF}'
+    Splunk_Token REPLACE_SPLUNK_TOKEN

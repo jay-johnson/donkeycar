@@ -24,6 +24,8 @@ dcbranch="dev"
 if [[ "${DCBRANCH}" != "" ]]; then
     dcbranch="${DCBRANCH}"
 fi
+splunk_user="pi"
+splunk_password="123321"
 
 if [[ ! -e ${mountpath} ]]; then
     err "cannot deploy as mount path not found: ${mount_path}"
@@ -141,6 +143,23 @@ anmt "installing initial package installer for first time-boot installs: /opt/fi
 anmt "cp ${DCPATH}/files/first_time_install.sh ${DCMOUNTPATH}/opt/first_time_install.sh"
 cp ${DCPATH}/files/first_time_install.sh ${DCMOUNTPATH}/opt/first_time_install.sh
 chmod 777 ${DCMOUNTPATH}/opt/first_time_install.sh
+
+splunk_token="NOTFOUND"
+test_splunk=$(docker ps | grep splunk | wc -l)
+if [[ "${test_splunk}" == "1" ]]; then
+    anmt "getting splunk token from splunk container"
+    splunk_token=$(docker exec -it splunk /bin/bash -c "ps auwwx ; /opt/splunk/bin/splunk http-event-collector list -uri "https://${splunk_user}:${splunk_password}@localhost:8089"" | grep 'token='  | sed -e 's/=/ /g' | awk '{print $NF}')
+    anmt "installing splunk token: ${DCMOUNTPATH}/opt/dc/install/pi/files/config-fluent-bit-in-tcp-out-splunk.yaml"
+    sed -i "s|REPLACE_SPLUNK_TOKEN|${splunk_token}|g" ${DCMOUNTPATH}/opt/dc/install/pi/files/config-fluent-bit-in-tcp-out-splunk.yaml
+    test_token=$(cat ${DCMOUNTPATH}/opt/dc/install/pi/files/config-fluent-bit-in-tcp-out-splunk.yaml | grep REPLACE_SPLUNK_TOKEN | wc -l)
+    if [[ "${test_token}" == "0" ]]; then
+        test_exists=$(cat ${DCMOUNTPATH}/etc/td-agent-bit/td-agent-bit.conf | grep config-fluent-bit-in-tcp-out-splunk | wc -l)
+        if [[ "${test_exists}" == "0" ]]; then
+            anmt "installing splunk HEC forwarder with token: echo \"@INCLUDE /opt/dc/install/pi/files/config-fluent-bit-in-tcp-out-splunk.yaml\" >> ${DCMOUNTPATH}/etc/td-agent-bit/td-agent-bit.conf"
+            echo "@INCLUDE /opt/dc/install/pi/files/config-fluent-bit-in-tcp-out-splunk.yaml" >> ${DCMOUNTPATH}/etc/td-agent-bit/td-agent-bit.conf
+        fi
+    fi
+fi
 
 anmt "done installing tools"
 

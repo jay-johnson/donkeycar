@@ -43,6 +43,13 @@ if [[ -e ${DCPATH}/install/pi/files/rebuild_pip.sh ]]; then
     nohup ${DCPATH}/install/pi/files/rebuild_pip.sh >> /tmp/pip-install.log 2>&1 &
 fi
 
+# https://docs.fluentbit.io/manual/getting_started
+if [[ -e /opt/dc/install/pi/files/fluent-bit-install.sh ]]; then
+    anmt "installing fluent bit: /opt/dc/install/pi/files/fluent-bit-install.sh"
+    chmod 777 /opt/dc/install/pi/files/fluent-bit-install.sh
+    /opt/dc/install/pi/files/fluent-bit-install.sh 2>&1 /tmp/fluent-bit-install.log
+fi
+
 test_exists=$(which docker | wc -l)
 if [[ "${test_exists}" == "0" ]]; then
     if [[ -e /opt/dc/install/pi/files/docker-install.sh ]]; then
