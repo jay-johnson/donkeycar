@@ -22,13 +22,15 @@ sleep 30
 anmt "getting updates"
 date +"%Y-%m-%d %H:%M:%S"
 
-apt-get update -y
+apt-get update -y \
+    -o Dpkg::Options::="--force-confold" --force-yes
 
 anmt "installing initial packages"
 date +"%Y-%m-%d %H:%M:%S"
 
 anmt "installing initial packages"
-apt-get install -y \ 
+apt-get install -y \
+    -o Dpkg::Options::="--force-confold" --force-yes \
     apt-transport-https \
     ca-certificates \
     git \
