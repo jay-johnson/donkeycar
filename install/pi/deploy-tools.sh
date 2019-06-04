@@ -173,6 +173,8 @@ if [[ "${test_splunk}" == "1" ]]; then
         test_exists=$(cat ${DCMOUNTPATH}/etc/td-agent-bit/td-agent-bit.conf | grep config-fluent-bit-in-tcp-out-splunk | wc -l)
         if [[ "${test_exists}" == "0" ]]; then
             anmt "installing splunk HEC forwarder with token: echo \"@INCLUDE /opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml >> ${DCMOUNTPATH}/etc/td-agent-bit/td-agent-bit.conf"
+            echo "" >> ${DCMOUNTPATH}/etc/td-agent-bit/td-agent-bit.conf
+            echo "# Adding Splunk HEC Forwarder" >> ${DCMOUNTPATH}/etc/td-agent-bit/td-agent-bit.conf
             echo "@INCLUDE /opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml" >> ${DCMOUNTPATH}/etc/td-agent-bit/td-agent-bit.conf
             chown ${DCUSER}:${DCUSER} ${DCMOUNTPATH}/etc/td-agent-bit/td-agent-bit.conf
         fi
