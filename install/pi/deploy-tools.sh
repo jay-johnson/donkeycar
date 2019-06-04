@@ -160,9 +160,6 @@ if [[ "${test_splunk}" == "1" ]]; then
     anmt "getting splunk token from splunk container"
     splunk_token=$(docker exec -it splunk /bin/bash -c "ps auwwx ; /opt/splunk/bin/splunk http-event-collector list -uri "https://${splunk_user}:${splunk_password}@localhost:8089"" | grep 'token='  | sed -e 's/=/ /g' | awk '{print $NF}' | sed "s/\n//g" | sed "s/\r//g" | head -1)
     anmt "installing splunk token: ${DCMOUNTPATH}/opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml"
-    if [[ ! -e ${DCMOUNTPATH}/etc/td-agent-bit ]]; then
-        mkdir -p -m 777 ${DCMOUNTPATH}/etc/td-agent-bit
-    fi
     if [[ ! -e ${DCMOUNTPATH}/opt/fluent-bit-includes ]]; then
         mkdir -p -m 777 ${DCMOUNTPATH}/opt/fluent-bit-includes
     fi
@@ -179,24 +176,6 @@ if [[ "${test_splunk}" == "1" ]]; then
     sed -i "s|REPLACE_SPLUNK_HOST|${splunk_host}|g" ${DCMOUNTPATH}/opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml
     if [[ "$?" != "0" ]]; then
         err "failed to install splunk HEC host: ${splunk_host} into file: ${DCMOUNTPATH}/opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml"
-    fi
-    test_token=$(cat ${DCMOUNTPATH}/opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml | grep REPLACE_SPLUNK_TOKEN | wc -l)
-    if [[ "${test_token}" == "0" ]]; then
-        anmt "installing new token into: ${DCMOUNTPATH}/opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml"
-        if [[ ! -e ${DCMOUNTPATH}/etc/td-agent-bit ]]; then
-            mkdir -p -m 777 ${DCMOUNTPATH}/etc/td-agent-bit
-        fi
-        if [[ ! -e ${DCMOUNTPATH}/etc/td-agent-bit/td-agent-bit.conf ]]; then
-            cp ${DCPATH}/files/td-agent-bit.conf ${DCMOUNTPATH}/etc/td-agent-bit/td-agent-bit.conf
-        fi
-        test_exists=$(cat ${DCMOUNTPATH}/etc/td-agent-bit/td-agent-bit.conf | grep config-fluent-bit-in-tcp-out-splunk | wc -l)
-        if [[ "${test_exists}" == "0" ]]; then
-            anmt "installing splunk HEC forwarder with token: echo \"@INCLUDE /opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml >> ${DCMOUNTPATH}/etc/td-agent-bit/td-agent-bit.conf"
-            echo "" >> ${DCMOUNTPATH}/etc/td-agent-bit/td-agent-bit.conf
-            echo "# Adding Splunk HEC Forwarder" >> ${DCMOUNTPATH}/etc/td-agent-bit/td-agent-bit.conf
-            echo "@INCLUDE /opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml" >> ${DCMOUNTPATH}/etc/td-agent-bit/td-agent-bit.conf
-            chown ${DCUSER}:${DCUSER} ${DCMOUNTPATH}/etc/td-agent-bit/td-agent-bit.conf
-        fi
     fi
 fi
 

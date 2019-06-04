@@ -38,7 +38,9 @@ setup(
     author_email="wroscoe@gmail.com",
     license="MIT",
     entry_points={
-        "console_scripts": [f"dk={base_module_path}:execute_from_command_line"]
+        "console_scripts": [
+            "dk={}:execute_from_command_line".format(base_module_path)
+        ]
     },
     install_requires=[
         "black",

@@ -27,6 +27,19 @@ apt-get update -y
 anmt "installing fluent bit"
 apt-get install td-agent-bit -y
 
+anmt "checking if splunk is enabled"
+test_token=$(cat /opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml | grep REPLACE_SPLUNK_TOKEN | wc -l)
+if [[ "${test_token}" == "0" ]]; then
+    anmt "including splunk fluent bit file: /opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml"
+    test_exists=$(cat /etc/td-agent-bit/td-agent-bit.conf | grep config-fluent-bit-in-tcp-out-splunk | wc -l)
+    if [[ "${test_exists}" == "0" ]]; then
+        anmt "installing splunk HEC forwarder with token: echo \"@INCLUDE /opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml >> /etc/td-agent-bit/td-agent-bit.conf"
+        echo "" >> /etc/td-agent-bit/td-agent-bit.conf
+        echo "# Adding Splunk HEC Forwarder" >> /etc/td-agent-bit/td-agent-bit.conf
+        echo "@INCLUDE /opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml" >> /etc/td-agent-bit/td-agent-bit.conf
+    fi
+fi
+
 anmt "reloading daemon"
 systemctl daemon-reload
 anmt "enabling fluent bit on reboot"
