@@ -175,7 +175,6 @@ if [[ "${test_splunk}" == "1" ]]; then
     if [[ "$?" != "0" ]]; then
         err "failed to install splunk token: ${splunk_token} into file: ${DCMOUNTPATH}/opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml"
         echo "sed -i \"s|REPLACE_SPLUNK_TOKEN|${splunk_token}|g\" ${DCMOUNTPATH}/opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml"
-        exit 1
     fi
     sed -i "s|REPLACE_SPLUNK_HOST|${splunk_host}|g" ${DCMOUNTPATH}/opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml
     if [[ "$?" != "0" ]]; then
