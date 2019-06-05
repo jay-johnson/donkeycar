@@ -33,7 +33,11 @@ if [[ ! -e /etc/apt/sources.list.d/docker.list ]]; then
     sudo touch /etc/apt/sources.list.d/docker.list
     sudo chmod 666 /etc/apt/sources.list.d/docker.list
 fi
-echo "deb [arch=armhf] https://download.docker.com/linux/raspbian $(lsb_release -cs) stable" >> /etc/apt/sources.list.d/docker.list
+
+test_exists=$(cat /etc/apt/sources.list.d/docker.list | grep download.docker.com | grep raspbian | wc -l)
+if [[ "${test_exists}" == "0" ]]; then
+    echo "deb [arch=armhf] https://download.docker.com/linux/raspbian $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
+fi
 
 anmt "checking docker repo file: /etc/apt/sources.list.d/docker.list"
 cat /etc/apt/sources.list.d/docker.list

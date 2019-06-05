@@ -22,6 +22,26 @@ while (( "$#" )); do
         export DCDEBUG="1"
         shift 1
         ;;
+    # download from a custom image zip from google drive by this file id
+    -f|--google-fileid)
+        if [[ "${2}" == "" ]]; then
+            err "missing google file id"
+            exit 1
+        fi
+        export DCGID="${2}"
+        shift 2
+        ;;
+    # during image backup, you can name the zipped up image,
+    # please use it again to ensure
+    # the unzipped file image is correct
+    -x|--extracted-image-name)
+        if [[ "${2}" == "" ]]; then
+            err "missing extracted image name"
+            exit 1
+        fi
+        export DCIMAGENAME="${2}"
+        shift 2
+        ;;
     -t|--docker-registry-url)
         if [[ "${2}" == "" ]]; then
             err "missing docker private registry url"
