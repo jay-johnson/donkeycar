@@ -13,7 +13,7 @@ if [[ "${DCVENVDIR}" != "" ]]; then
 fi
 
 if [[ ! -e ${venvpath}/bin/activate ]]; then
-    anmt "creating venv: ${venvpath}"
+    anmt "creating venv: ${venvpath} python runtime: $(ls -l /usr/bin/python3 | awk '{print $NF}')"
     virtualenv -p /usr/bin/python3 ${venvpath}
 fi
 
@@ -25,8 +25,8 @@ if [[ -e ${venvpath}/bin/activate ]]; then
     pip install --upgrade pip setuptools
 
     upgrade_scipy=""
-    test_scipy=$(pip list --format columns | grep scipy | wc -l)
-    if [[ "${test_scipy}" == "0" ]]; then
+    if [[ -e /opt/stay-on-python35 ]] && [[ "${test_scipy}" == "0" ]]; then
+        test_scipy=$(pip list --format columns | grep scipy | wc -l)
         scipy_version="scipy-1.2.1-cp35-cp35m-linux_armv7l.whl"
         if [[ "${upgrade_scipy}" != "" ]]; then
             scipy_version="${upgrade_scipy}"
@@ -49,6 +49,8 @@ if [[ -e ${venvpath}/bin/activate ]]; then
             err "pip install ${scipy_download_file}"
             exit 1
         fi
+    else
+        anmt "installing with pip"
     fi
 
     if [[ -e ${repo_dir} ]]; then
