@@ -29,6 +29,7 @@ export DCIMAGENAME="donkey_2.5.0_pi3.img"
 export DCGDOWNLOADPATH="${DCPATH}/files/dc.zip"
 export DCIMAGE="${DCPATH}/files/dc.img"
 export DCMOUNTPATH="${DCPATH}/dcdisk"
+export DCGBTOADD="max"
 if [[ "${DCUSER}" == "" ]]; then
     export DCUSER="jay"
 fi
@@ -73,6 +74,10 @@ while (( "$#" )); do
         fi
         export DCIMAGENAME="${2}"
         shift 2
+        ;;
+    -B|--build-base)
+        export DCGBTOADD="10"
+        shift 1
         ;;
     -t|--docker-registry-url)
         if [[ "${2}" == "" ]]; then
@@ -197,8 +202,8 @@ if [[ "${burn_enabled}" == "1" ]]; then
     parted ${DEVICE} print free
     inf ""
 
-    anmt "resizing sd card ${DEVICE} to maximize storage space on the device: ${DCPATH}/root-resize-sd-card.sh"
-    ${DCPATH}/root-resize-sd-card.sh
+    anmt "resizing sd card ${DEVICE} with capacity: ${DCGBTOADD} GB more on the device: ${DCPATH}/root-resize-sd-card.sh"
+    ${DCPATH}/root-resize-sd-card.sh ${DEVICE} ${DCGBTOADD}
     if [[ "$?" != "0" ]]; then
         err "failed to resize image on sd card: ${DEVICE}"
         inf "${DCPATH}/root-resize-sd-card.sh"

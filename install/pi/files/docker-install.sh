@@ -55,7 +55,6 @@ sudo systemctl start docker.service
 # anmt "checking docker status"
 # sudo systemctl status docker.service
 
-EXITVALUE=0
 if [[ "REPLACE_DOCKER_ENABLED" == "1" ]]; then
     if [[ -e /opt/login_to_docker.sh ]]; then
         anmt "sleeping before trying to login to the docker registry"
@@ -64,8 +63,11 @@ if [[ "REPLACE_DOCKER_ENABLED" == "1" ]]; then
         anmt "done sleeping - trying to login to the registry"
         date +"%Y-%m-%d %H:%M:%S"
         /opt/login_to_docker.sh
-        EXITVALUE=$?
     fi
 fi
 
-exit $EXITVALUE
+anmt "docker-install scheduling a reboot for the donkey car due to github issue: https://github.com/moby/moby/issues/21831"
+sudo touch /opt/reboot-scheduled
+sudo chmod 666 /opt/reboot-scheduled
+
+exit 0

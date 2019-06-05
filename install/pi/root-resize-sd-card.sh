@@ -33,6 +33,7 @@ if [[ "$(whoami)" != "root" ]]; then
 fi
 
 device_to_use="${1}"
+# set by burn-image-to-sd-card.sh
 if [[ "${DEVICE}" != "" ]]; then
     device_to_use="${DEVICE}"
 fi
@@ -40,6 +41,7 @@ if [[ "${1}" != "" ]]; then
     device_to_use="${1}"
 fi
 gb_to_add=""
+# set by burn-image-to-sd-card.sh
 if [[ "${DCGBTOADD}" != "" ]]; then
     gb_to_add="${DCGBTOADD}"
 fi
