@@ -28,11 +28,15 @@ sudo sh get-docker.sh
 anmt "adding pi user to docker group"
 sudo usermod -aG docker pi
 
-anmt "adding docker apt-registry"
-sudo add-apt-repository \
-   "deb [arch=armhf] https://download.docker.com/linux/debian \
-   $(lsb_release -cs) \
-   stable"
+anmt "adding docker apt repo"
+if [[ ! -e /etc/apt/sources.list.d/docker.list ]]; then
+    sudo touch /etc/apt/sources.list.d/docker.list
+    sudo chmod 666 /etc/apt/sources.list.d/docker.list
+fi
+echo "deb [arch=armhf] https://download.docker.com/linux/raspbian $(lsb_release -cs) stable" >> /etc/apt/sources.list.d/docker.list
+
+anmt "checking docker repo file: /etc/apt/sources.list.d/docker.list"
+cat /etc/apt/sources.list.d/docker.list
 
 anmt "getting updates"
 sudo apt-get update -y

@@ -28,7 +28,7 @@ base_module_path = 'donkeycar.management.base'
 
 setup(
     name='donkeycar',
-    version='2.6.0.t',
+    version='2.6.1.t',
     description=(
         'work-in-progress for learning about donkey cars: '
         'a self driving library for python.'
