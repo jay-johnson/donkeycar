@@ -49,22 +49,6 @@ anmt "reloading daemon"
 sudo systemctl daemon-reload
 anmt "enabling docker on reboot"
 sudo systemctl enable docker.service
-anmt "starting docker"
-sudo systemctl start docker.service
-# this can hang automation:
-# anmt "checking docker status"
-# sudo systemctl status docker.service
-
-if [[ "REPLACE_DOCKER_ENABLED" == "1" ]]; then
-    if [[ -e /opt/login_to_docker.sh ]]; then
-        anmt "sleeping before trying to login to the docker registry"
-        date +"%Y-%m-%d %H:%M:%S"
-        sleep 60
-        anmt "done sleeping - trying to login to the registry"
-        date +"%Y-%m-%d %H:%M:%S"
-        /opt/login_to_docker.sh
-    fi
-fi
 
 anmt "docker-install scheduling a reboot for the donkey car due to github issue: https://github.com/moby/moby/issues/21831"
 sudo touch /opt/reboot-scheduled
