@@ -43,7 +43,6 @@ setup(
         ]
     },
     install_requires=[
-        'black',
         'colorlog',
         'docopt',
         'docker-compose',
