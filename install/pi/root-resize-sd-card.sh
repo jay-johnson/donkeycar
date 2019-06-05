@@ -13,7 +13,7 @@ if [[ "$(whoami)" != "root" ]]; then
 fi
 
 if [[ "${DEVICE}" != "/dev/sda" ]] && [[ "${DEVICE}" != "" ]]; then
-    # ./extend-sd-card.sh ${DEVICE} 2 apply
+    ./extend-sd-card.sh ${DEVICE} 2 apply
     if [[ "$?" != "0" ]]; then
         err "failed to extend ${DEVICE} storage"
         inf "./extend-sd-card.sh ${DEVICE} 2 apply"
