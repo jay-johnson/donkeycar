@@ -1,6 +1,6 @@
 FROM arm32v7/python:3.7.3-stretch
 
-RUN apt-get update \
+RUN apt-get update -y -o "Dpkg::Options::=--force-confdef" -o "Dpkg::Options::=--force-confold" \
   && apt-get install -y \
     autoconf \
     build-essential \
@@ -12,6 +12,13 @@ RUN apt-get update \
     libssl-dev \
     libffi6 \
     libffi-dev \
+    libncurses5-dev \
+    libncursesw5-dev \
+    libreadline-dev \
+    libsqlite3-dev \
+    liblzma-dev \
+    libbz2-dev \
+    llvm \
     lsof \
     make \
     mlocate \
@@ -31,35 +38,13 @@ RUN apt-get update \
     software-properties-common \
     strace \
     telnet \
+    tk-dev \
     unzip \
     uuid-runtime \
     vim \
-    wget
-
-RUN echo "preparing virtualenv" \
-  && pip install --upgrade virtualenvwrapper pip \
-  && echo "creating virtualenv" \
-  && virtualenv -p /usr/bin/python3 /opt/venv \
-  && chmod 777 /opt/venv \
-  && echo "setting up virtualenv" \
-  && . /opt/venv/bin/activate \
-  && pip install --upgrade setuptools pip
-
-RUN echo "installing source" \
-  && echo "activating venv" \
-  && . /opt/venv/bin/activate \
-  && cd /opt \
-  && echo "cloning" \
-  && git clone https://github.com/jay-johnson/donkeycar.git /opt/dc \
-  && echo "using branch: d1" \
-  && git checkout d1 \
-  && echo "starting pip install pip install --upgrade -e ." \
-  && cd /opt/dc \
-  && pip install --upgrade -e . \
-  && echo "pips:" \
-  && pip list --format=columns \
-  && echo "updating repo" \
-  && ls -l /opt/dc
+    wget \
+    xz-utils \
+    zlib1g-dev
 
 WORKDIR /opt/dc
 

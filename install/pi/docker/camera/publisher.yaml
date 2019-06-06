@@ -1,0 +1,15 @@
+version: '2'
+
+services:
+
+  # Donkey Car - Camera Recorder
+  camera-publisher:
+    container_name: "camera-publisher"
+    hostname: "camera-publisher"
+    image: jayjohnson/arm32v7-python3.7-venv-base:latest
+    tty: true
+    env_file:
+      - ../envs/backtester.env
+    entrypoint: "/bin/sh -c 'cd /opt/ae &&
+                 . /opt/venv/bin/activate &&
+                 /opt/ae/start-workers.sh 15'"

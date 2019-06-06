@@ -1,15 +1,47 @@
 #!/bin/bash
 
 maintainer=jayjohnson
-imagename=donkey-car-base
+imagename=arm32v7-base
 
 tag=$(cat ../../../setup.py | grep "version=" | sed -e 's/"/ /g' | awk '{print $2}')
 
 echo ""
 echo "--------------------------------------------------------"
-echo "Building new Docker image(${maintainer}/${imagename})"
-docker build -f ./base/Dockerfile --rm -t $maintainer/$imagename .
+echo "Building new base image: ${maintainer}/${imagename}"
+base_image="$maintainer/$imagename"
+docker build -f ./base/Dockerfile --rm -t ${base_image} .
 last_status=$?
+if [[ "${last_status}" != "0" ]]; then
+    echo ""
+    echo "failed to build base image: ${base_image}"
+    echo "docker build -f ./repo/Dockerfile --rm -t ${base_image} ."
+    echo ""
+    exit 1
+fi
+
+imagename=arm32v7-python37-venv
+repo_image="$maintainer/$imagename"
+docker build -f ./python3.7/Dockerfile --rm -t ${repo_image} .
+last_status=$?
+if [[ "${last_status}" != "0" ]]; then
+    echo ""
+    echo "failed to build python image: ${repo_image}"
+    echo "docker build -f ./python3.7/Dockerfile --rm -t ${repo_image} ."
+    echo ""
+    exit 1
+fi
+
+imagename=arm32v7-python37-repo-base
+repo_image="$maintainer/$imagename"
+docker build -f ./repo/Dockerfile --rm -t ${repo_image} .
+last_status=$?
+if [[ "${last_status}" != "0" ]]; then
+    echo ""
+    echo "failed to build repo image: ${repo_image}"
+    echo "docker build -f ./repo/Dockerfile --rm -t ${repo_image} ."
+    echo ""
+    exit 1
+fi
 if [[ "${last_status}" == "0" ]]; then
     echo ""
     if [[ "${tag}" != "" ]]; then
