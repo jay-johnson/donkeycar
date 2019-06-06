@@ -1,6 +1,7 @@
 FROM jayjohnson/arm32v7-python37-venv:latest
 
 RUN echo "installing source" \
+  && apt-get install -y libblas-dev liblapack-dev \
   && echo "activating venv" \
   && . /opt/venv/bin/activate \
   && echo "checking python version:" \

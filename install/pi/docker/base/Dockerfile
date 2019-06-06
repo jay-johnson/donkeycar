@@ -7,11 +7,14 @@ RUN apt-get update -y -o "Dpkg::Options::=--force-confdef" -o "Dpkg::Options::=-
     cmake \
     curl \
     gcc \
+    gfortran \
     git \
+    libblas-dev \
     libcurl4-openssl-dev \
     libssl-dev \
     libffi6 \
     libffi-dev \
+    liblapack-dev \
     libncurses5-dev \
     libncursesw5-dev \
     libreadline-dev \
