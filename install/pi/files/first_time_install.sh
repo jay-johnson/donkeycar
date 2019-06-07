@@ -105,6 +105,8 @@ if [[ -e ${DCPATH}/install/pi/files/fluent-bit-install.sh ]]; then
     ${DCPATH}/install/pi/files/fluent-bit-install.sh >> /var/log/sdinstall.log 2>&1
 fi
 
+# for now, docker requires a reboot to work after installing:
+
 test_exists=$(which docker | wc -l)
 if [[ "${test_exists}" == "0" ]]; then
     if [[ -e ${DCPATH}/install/pi/files/docker-install.sh ]]; then
