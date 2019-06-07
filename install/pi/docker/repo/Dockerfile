@@ -1,8 +1,8 @@
 FROM jayjohnson/arm32v7-python37-venv:latest
 
 RUN echo "installing source" \
-  && apt-get install -y libblas-dev liblapack-dev \
   && echo "activating venv" \
+  && apt-get install -y gfortran libblas-dev liblapack-dev \
   && . /opt/venv/bin/activate \
   && echo "checking python version:" \
   && python --version \
@@ -15,12 +15,23 @@ RUN echo "installing source" \
   && git clone https://github.com/jay-johnson/donkeycar.git /opt/dc \
   && cd /opt/dc \
   && echo "using branch: d1" \
-  && git checkout d1 \
+  && git checkout d1
+
+RUN echo "installing initial pips that take a long time: numpy and scipy" \
   && cd /opt/dc \
-  && pip install scipy -vv \
+  && . /opt/venv/bin/activate \
+  && echo "installing numpy" \
+  && pip install numpy -v \
+  && echo "installing scipy" \
+  && pip install scipy -v
+  && echo "installing pandas" \
+  && pip install pandas \
+
+RUN echo "building repo" \
+  && . /opt/venv/bin/activate \
+  && cd /opt/dc \
   && echo "starting pip install pip install --upgrade -e ." \
-  && cd /opt/dc \
-  && pip install --upgrade -evv . \
+  && pip install --upgrade -e . \
   && echo "pips:" \
   && pip list --format=columns \
   && echo "updating repo" \

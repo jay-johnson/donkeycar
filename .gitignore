@@ -24,3 +24,4 @@ dcdisk
 id_rsa
 id_rsa.pub
 *.whl
+docker.log

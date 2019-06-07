@@ -11,14 +11,16 @@ RUN apt-get update -y -o "Dpkg::Options::=--force-confdef" -o "Dpkg::Options::=-
     git \
     libblas-dev \
     libcurl4-openssl-dev \
-    libssl-dev \
+    liblapack-dev \
     libffi6 \
     libffi-dev \
+    libhdf5-serial-dev \
     liblapack-dev \
     libncurses5-dev \
     libncursesw5-dev \
     libreadline-dev \
     libsqlite3-dev \
+    libssl-dev \
     liblzma-dev \
     libbz2-dev \
     llvm \
