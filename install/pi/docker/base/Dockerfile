@@ -26,6 +26,7 @@ RUN apt-get update -y -o "Dpkg::Options::=--force-confdef" -o "Dpkg::Options::=-
     lsof \
     make \
     mlocate \
+    ncdu \
     netcat \
     net-tools \
     openssl \

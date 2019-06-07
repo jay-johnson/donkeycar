@@ -34,6 +34,7 @@ apt-get install -y \
     lsof \
     make \
     mlocate \
+    ncdu \
     netcat \
     net-tools \
     openssl \
