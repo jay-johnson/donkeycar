@@ -1,6 +1,8 @@
-FROM jayjohnson/arm32v7-base:latest
+#!/bin/bash
 
-RUN echo "" \
+echo "installing python 3.7 with a virtual env at: /opt/venv"
+
+echo "" \
   && echo "starting build" \
   && python_version="3.7" \
   && python_build="${python_version}.3" \
@@ -11,14 +13,14 @@ RUN echo "" \
   && cd /opt \
   && tar xf Python-${python_build}.tar.xz
 
-RUN echo "" \
+echo "" \
   && echo "configuring" \
   && python_version="3.7" \
   && python_build="${python_version}.3" \
   && cd /opt/Python-${python_build} \
   && ./configure
 
-RUN echo "" \
+echo "" \
   && echo "building" \
   && python_version="3.7" \
   && python_build="${python_version}.3" \
@@ -35,7 +37,7 @@ RUN echo "" \
   && echo "removing /opt/Python-${python_build}.tar.xz" \
   && rm -f /opt/Python-${python_build}.tar.xz
 
-RUN echo "" \
+echo "" \
   && echo "preparing virtualenv" \
   && python_version="3.7" \
   && python_build="${python_version}.3" \
@@ -47,7 +49,4 @@ RUN echo "" \
   && . /opt/venv/bin/activate \
   && pip install --upgrade setuptools pip
 
-ENV VENV="/opt/venv"
-
-ENTRYPOINT . /opt/venv/bin/activate \
-  && ls -l /opt/dc
+exit 0

@@ -21,6 +21,29 @@ export WIFINAME="WIFI_SSID_NAME"
 export WIFIPASSWORD="WIFI_PASSWORD"
 ```
 
+#### Optional Environment Variables to Set
+
+##### GitHub Repository and Branch to Clone and Use
+
+```
+export DCREPO=GITHUB_URL
+export DCBRANCH=GITHUB_BRANCH
+```
+
+##### Docker Credentials for a Private Docker Registry
+
+```
+export DCDOCKERUSER=DOCKER_USER
+export DCDOCKERPASSWORD=DOCKER_PASSWORD
+export DCDOCKERREGISTRY=DOCKER_REGISTRY_ADDRESS_WITH_PORT
+```
+
+##### Splunk Host for Publishing from a Donkey Car
+
+```
+export DCSPLUNKHOST="192.168.0.100"
+```
+
 3. Burn the Image as Root
 
 This will download, burn, resize to maximize storage, mount, deploy the latest custom artifacts (including support for installing docker and an rc.local file), and then unmount the latest donkey car release image as the root user with the sd card inserted in to the **DEVICE** sd reader. The newly-burned filesystem will be mounted at **./dcdisk** and then the **deploy.sh** script will run to install all additional, custom files to the sd card's new OS before unmounting the sd card for use on a donkey car or just in a rasberry pi 3b+.
@@ -76,7 +99,8 @@ Please note, these optional command arguments also work with the full **burn-ima
     -b CUSTOM_GITHUB_BRANCH \
     -e DOCKER_REGISTRY_USER \
     -w DOCKER_REGISTRY_PASSWORD \
-    -t DOCKER_REGISTRY_ADDRESS
+    -t DOCKER_REGISTRY_ADDRESS \
+    -S SPLUNK_HOST
 ```
 
 ### Use Your Own Deploy Script to Prepare the Donkey Car OS
@@ -152,6 +176,10 @@ By default, the **rc.local** will run the following scripts if they are found on
 1. If [/opt/first_time_install.sh](https://github.com/autorope/donkeycar/blob/dev/install/pi/files/first_time_install.sh) is found it will install packages
 
 2. If [/opt/run_updater.sh](https://github.com/autorope/donkeycar/blob/dev/install/pi/files/run_updater.sh) is found it will run any updates
+
+### Donkey Car Docker Images
+
+Please note the donkey car images take a long time to build and >2 GB HDD space so please plan accordingly when using these images.
 
 ### Set up Automatic Donkey Car Log Publishing to Splunk
 
@@ -231,3 +259,4 @@ python -c "from donkeycar.log import get_log; import datetime; \
         'hello from dc1 sent at: {}'.format(
             datetime.datetime.utcnow()))"
 ```
+

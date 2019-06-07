@@ -103,6 +103,14 @@ while (( "$#" )); do
         export DCDOCKERPASSWORD="${2}"
         shift 2
         ;;
+    -S|--splunk-host)
+        if [[ "${2}" == "" ]]; then
+            err "missing splunk host"
+            exit 1
+        fi
+        export DCSPLUNKHOST="${2}"
+        shift 2
+        ;;
     -r|--rclocal-path)
         if [[ ! -e ${2} ]]; then
             err "unable to find rc.local path to -r <file>: ${2}"

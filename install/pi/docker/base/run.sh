@@ -1,7 +1,14 @@
-FROM arm32v7/python:3.7.3-stretch
+#!/bin/bash
 
-RUN apt-get update -y -o "Dpkg::Options::=--force-confdef" -o "Dpkg::Options::=--force-confold" \
-  && apt-get install -y \
+echo "updating all packages"
+
+apt-get update -y -o "Dpkg::Options::=--force-confdef" -o "Dpkg::Options::=--force-confold"
+if [[ "$?" != "0" ]]; then
+    echo "failed - updating"
+    exit 1
+fi
+
+apt-get install -y \
     autoconf \
     build-essential \
     cmake \
@@ -11,6 +18,7 @@ RUN apt-get update -y -o "Dpkg::Options::=--force-confdef" -o "Dpkg::Options::=-
     git \
     libblas-dev \
     libcurl4-openssl-dev \
+    liblapack-dev \
     libffi6 \
     libffi-dev \
     libhdf5-serial-dev \
@@ -50,7 +58,9 @@ RUN apt-get update -y -o "Dpkg::Options::=--force-confdef" -o "Dpkg::Options::=-
     xz-utils \
     zlib1g-dev
 
-WORKDIR /opt/dc
+if [[ "$?" != "0" ]]; then
+    echo "failed - installing"
+    exit 1
+fi
 
-ENTRYPOINT . /opt/venv/bin/activate \
-  && ls -l /opt/dc
+exit 0

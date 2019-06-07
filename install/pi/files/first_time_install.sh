@@ -51,7 +51,18 @@ if [[ -e /opt/install-packages ]]; then
         exit 1
     else
         date +"%Y-%m-%d %H:%M:%S"
-        good "install packages - complete"
+        good "install initial packages - complete"
+    fi
+
+    if [[ ! -e /opt/no-build-packages ]]; then
+        if [[ -e /opt/dc/install/pi/docker/base/run.sh ]]; then
+            anmt "starting install of build packages"
+            anmt "sudo /opt/dc/install/pi/docker/base/run.sh"
+            date +"%Y-%m-%d %H:%M:%S"
+            sudo /opt/dc/install/pi/docker/base/run.sh
+            date +"%Y-%m-%d %H:%M:%S"
+            good "starting install of build packages - complete"
+        fi
     fi
 
     sudo rm -f /opt/install-packages
