@@ -60,6 +60,10 @@ if [[ -e /opt/install-packages ]]; then
             anmt "sudo /opt/dc/install/pi/docker/base/run.sh"
             date +"%Y-%m-%d %H:%M:%S"
             sudo /opt/dc/install/pi/docker/base/run.sh
+            if [[ "$?" != "0" ]]; then
+                err "failed to install build packages for the donkey car os: /opt/dc/install/pi/docker/base/run.sh"
+                exit 1
+            fi
             date +"%Y-%m-%d %H:%M:%S"
             good "starting install of build packages - complete"
         fi
@@ -70,75 +74,22 @@ else
     anmt "no package install scheduled: /opt/install-packages"
 fi
 
-if [[ ! -e /opt/stay-on-python35 ]] && [[ -e /opt/use-python37 ]] && [[ ! -e /usr/local/bin/python${python_version} ]] && [[ ! -e /usr/local/bin/pip${python_version} ]]; then
-    anmt "installing python ${python_version}.3 from source from gist: https://gist.github.com/SeppPenner/6a5a30ebc8f79936fa136c524417761d#gistcomment-2920338"
-    date +"%Y-%m-%d %H:%M:%S"
-    sudo apt-get update -y
-    anmt "installing build packages"
-    sudo apt-get install build-essential tk-dev libncurses5-dev libncursesw5-dev libreadline6-dev libdb5.3-dev libgdbm-dev libsqlite3-dev libssl-dev libbz2-dev libexpat1-dev liblzma-dev zlib1g-dev libffi-dev -y
-    anmt "downloading python ${python_version}.3 source: https://www.python.org/ftp/python/${python_version}.3/Python-${python_version}.3.tar.xz"
-    wget https://www.python.org/ftp/python/${python_version}.3/Python-${python_version}.3.tar.xz
-    pushd /opt >> /dev/null 2>&1
-    tar xf Python-${python_version}.3.tar.xz
-    cd Python-${python_version}.3
-    ./configure
-    anmt "building python ${python_version}3"
-    make -j 4
-    sudo make -j4 altinstall
-    cd ..
-    anmt "removing /opt/Python-${python_version}.3"
-    sudo rm -r Python-${python_version}.3
-    anmt "removing /opt/Python-${python_version}.3.tar.xz"
-    rm Python-${python_version}.3.tar.xz
-    popd >> /dev/null 2>&1
-    anmt "removing old packages"
-    sudo apt-get autoremove -y
-    anmt "cleaning"
-    sudo apt-get clean
+if [[ ! -e /opt/stay-on-python35 ]] && [[ ! -e /usr/local/bin/python${python_version} ]] && [[ ! -e /usr/local/bin/pip${python_version} ]]; then
+    anmt "installing python ${python_version}.3" >> /var/log/sdinstall.log 2>&1
+    sudo /opt/dc/install/pi/docker/python${python_version}/run.sh >> /var/log/sdinstall.log 2>&1
+    if [[ "$?" != "0" ]]; then
+        err "failed to install python ${python_version} for the donkey car os: /opt/dc/install/pi/docker/python${python_version}/run.sh" >> /var/log/sdinstall.log 2>&1
+        exit 1
+    fi
+    good "done - installing python ${python_version}.3" >> /var/log/sdinstall.log 2>&1
 
-    if [[ -e /usr/bin/python3 ]] && [[ -e /usr/local/bin/python${python_version} ]]; then
-        sudo rm -f /usr/bin/python3
+    anmt "installing repo" >> /var/log/sdinstall.log 2>&1
+    sudo /opt/dc/install/pi/docker/repo/run.sh >> /var/log/sdinstall.log 2>&1
+    if [[ "$?" != "0" ]]; then
+        err "failed to install repo on the donkey car os: /opt/dc/install/pi/docker/repo/run.sh" >> /var/log/sdinstall.log 2>&1
+        exit 1
     fi
-    if [[ -e /usr/local/bin/python${python_version} ]]; then
-        sudo ln -s /usr/local/bin/python${python_version} /usr/bin/python3
-
-        if [[ "$(which python | wc -l)" == "0" ]]; then
-            sudo ln -s /usr/local/bin/python${python_version} /usr/bin/python
-        fi
-    else
-        err "failed to find python ${python_version} at: /usr/bin/python${python_version}"
-    fi
-    if [[ -e /usr/bin/python3m ]] && [[ -e /usr/local/bin/python${python_version}m ]]; then
-        sudo rm -f /usr/bin/python3m
-    fi
-    if [[ -e /usr/local/bin/python${python_version}m ]]; then
-        sudo ln -s /usr/local/bin/python${python_version}m /usr/bin/python3m
-    else
-        err "failed to find python ${python_version}m at: /usr/bin/python${python_version}m"
-    fi
-    if [[ -e /usr/bin/pip ]] && [[ -e /usr/local/bin/pip${python_version} ]]; then
-        sudo mv /usr/bin/pip /usr/bin/backup-pip
-    fi
-    if [[ -e /usr/bin/pip3 ]] && [[ -e /usr/local/bin/pip${python_version} ]]; then
-        sudo mv /usr/bin/pip3 /usr/bin/backup-pip3-3.5
-    fi
-    if [[ -e /usr/local/bin/pip${python_version} ]]; then
-        sudo ln -s /usr/local/bin/pip${python_version} /usr/bin/pip
-        sudo ln -s /usr/local/bin/pip${python_version} /usr/bin/pip3
-    else
-        err "failed to find pip${python_version} at: /usr/bin/pip${python_version}"
-    fi
-
-    # lsb_release module fix:
-    # https://askubuntu.com/questions/965043/no-module-named-lsb-release-after-install-python-3-6-3-from-source
-    if [[ -e /usr/local/lib/python${python_version}/site-packages/lsb_release.py ]]; then
-        anmt "installing lsb_release fix: sudo ln -s /usr/share/pyshared/lsb_release.py /usr/local/lib/python${python_version}/site-packages/lsb_release.py"
-        sudo ln -s /usr/share/pyshared/lsb_release.py /usr/local/lib/python${python_version}/site-packages/lsb_release.py
-        ls -l /usr/local/lib/python${python_version}/site-packages/lsb_release.py
-    fi
-
-    date +"%Y-%m-%d %H:%M:%S"
-    good "done - installing python ${python_version}.3 from source from gist: https://gist.github.com/SeppPenner/6a5a30ebc8f79936fa136c524417761d#gistcomment-2920338"
+    good "done - installing repo" >> /var/log/sdinstall.log 2>&1
 fi
 
 if [[ -e ${DCPATH}/install/pi/files/rebuild_pip.sh ]]; then

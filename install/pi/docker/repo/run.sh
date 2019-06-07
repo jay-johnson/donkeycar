@@ -30,7 +30,7 @@ echo "installing initial pips that take a long time: numpy and scipy and pandas"
   && echo "installing scipy" \
   && pip install scipy -v
   && echo "installing pandas" \
-  && pip install pandas \
+  && pip install pandas -v
 
 echo "building repo" \
   && . /opt/venv/bin/activate \
@@ -40,10 +40,6 @@ echo "building repo" \
   && echo "pips:" \
   && pip list --format=columns \
   && echo "checking repo" \
-  && ls -l /opt/dc \
-  && echo "installing rc files" \
-  && cp /opt/dc/install/pi/files/bashrc /root/.bashrc \
-  && cp /opt/dc/install/pi/files/vimrc /root/.vimrc \
-  && cp /opt/dc/install/pi/files/gitconfig /root/.gitconfig
+  && ls -l /opt/dc
 
 exit 0
