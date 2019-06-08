@@ -30,6 +30,8 @@ RUN echo "" \
   && echo "setting python ${python_build}" \
   && echo "update-alternatives --install /usr/bin/python python /usr/local/bin/python${python_version} 50" \
   && update-alternatives --install /usr/bin/python python /usr/local/bin/python${python_version} 50 \
+  && echo "changing to /opt before deleting dir" \
+  && cd /opt \
   && echo "removing /opt/Python-${python_build}" \
   && rm -rf /opt/Python-${python_build} \
   && echo "removing /opt/Python-${python_build}.tar.xz" \
