@@ -179,7 +179,9 @@ By default, the **rc.local** will run the following scripts if they are found on
 
 ### Donkey Car Docker Images
 
-Please note the donkey car images take a long time to build and >2 GB HDD space so please plan accordingly when using these images.
+Please note the donkey car images take a long time to build and >2 GB HDD space so please plan accordingly when using these images and they use python 3.7 as the default runtime.
+
+Please follow the [Running Donkey Car on a Raspberry Pi within Docker Images Readme](https://github.com/jay-johnson/donkeycar/tree/d1/install/pi/docker#running-donkey-car-on-a-raspberry-pi-within-docker-images) for more details on how to customize your own docker images.
 
 ### Set up Automatic Donkey Car Log Publishing to Splunk
 
@@ -249,7 +251,7 @@ If you need to roll the cars to a new HEC token, then please update the splunk t
 
 ### Debugging Splunk Token Issues
 
-Here is a python command for quickly testing the Fluent Bit's Splunk config file ([installed at /opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml](https://github.com/jay-johnson/donkeycar/blob/d1/install/pi/files/config-fluent-bit-in-tcp-out-splunk.yaml)) works with your Splunk HEC Token. Please run this from a donkey car ssh session:
+Here is a python command for quickly testing the Fluent Bit's Splunk config file ([installed at /opt/fluent-bit-includes/config-fluent-bit-in-tcp-out-splunk.yaml](https://github.com/autorope/donkeycar/blob/d1/install/pi/files/config-fluent-bit-in-tcp-out-splunk.yaml)) works with your Splunk HEC Token. Please run this from a donkey car ssh session:
 
 ```
 source /opt/venv/bin/activate
