@@ -22,7 +22,7 @@ RUN echo "installing initial pips that take a long time: numpy and scipy and pan
   && echo "installing numpy" \
   && pip install numpy -v \
   && echo "installing scipy" \
-  && pip install scipy -v
+  && pip install scipy -v \
   && echo "installing pandas" \
   && pip install pandas \
 
