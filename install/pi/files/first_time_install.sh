@@ -5,6 +5,8 @@ if [[ -e ${DCPATH}/install/pi/files/bash_colors.sh ]]; then
     source ${DCPATH}/install/pi/files/bash_colors.sh
 fi
 
+echo ""
+echo ""
 anmt "letting services start"
 date +"%Y-%m-%d %H:%M:%S"
 sleep 30
@@ -107,18 +109,22 @@ if [[ ! -e /opt/dc ]]; then
 fi
 
 if [[ ! -e /opt/dc ]]; then
-    anmt "unable to detect previously installed repo" >> /var/log/sdinstall.log 2>&1
-    if [[ -e ${DCPATH}/install/pi/files/rebuild_pip.sh ]]; then
-        anmt "rebuilding pip in ${DCPATH} with: ${DCPATH}/install/pi/files/rebuild_pip.sh"
-        chmod 777 ${DCPATH}/install/pi/files/rebuild_pip.sh
-        echo "sudo -u pi /bin/sh -c \"${DCPATH}/install/pi/files/rebuild_pip.sh >> /var/log/sdrepo.log 2>&1\""
-        sudo -u pi /bin/sh -c "${DCPATH}/install/pi/files/rebuild_pip.sh >> /var/log/sdrepo.log 2>&1"
-    fi
-fi
-
-if [[ ! -e /opt/dc ]]; then
     err "failed to clone repository to /opt/dc"
     exit 1
+fi
+
+if [[ -e ${DCPATH}/install/pi/files/rebuild_pip.sh ]]; then
+    anmt "rebuilding pip in ${DCPATH} with: ${DCPATH}/install/pi/files/rebuild_pip.sh"
+    chmod 777 ${DCPATH}/install/pi/files/rebuild_pip.sh
+    echo "sudo -u pi /bin/sh -c \"${DCPATH}/install/pi/files/rebuild_pip.sh >> /var/log/sdrepo.log 2>&1\""
+    sudo -u pi /bin/sh -c "${DCPATH}/install/pi/files/rebuild_pip.sh >> /var/log/sdrepo.log 2>&1"
+    if [[ "$?" != "0" ]]; then
+        err "failed to rebuild pips on the donkey car os: ${DCPATH}/install/pi/files/rebuild_pip.sh" >> /var/log/sdinstall.log 2>&1
+        exit 1
+    fi
+    good "done - installing repo" >> /var/log/sdinstall.log 2>&1
+else
+    anmt "skipping pip rebuild"
 fi
 
 # https://docs.fluentbit.io/manual/getting_started
