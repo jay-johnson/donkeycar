@@ -84,9 +84,13 @@ if [[ ! -e /opt/stay-on-python35 ]] && [[ ! -e /usr/local/bin/python${python_ver
     good "done - installing python ${python_version}.3" >> /var/log/sdinstall.log 2>&1
 fi
 
-if [[ ! -e /usr/local/bin/python${python_version} ]] && [[ ! -e /usr/local/bin/pip${python_version} ]]; then
-    err "failed to install python: ${python_version} /usr/local/bin/python${python_version} and /usr/local/bin/pip${python_version}"
+if [[ ! -e /usr/local/bin/python${python_version} ]] || [[ ! -e /usr/local/bin/pip${python_version} ]]; then
+    err "failed to find installed python: ${python_version} /usr/local/bin/python${python_version} or pip: /usr/local/bin/pip${python_version}"
+    echo ""
+    echo "installed python versions:"
     ls -lrt /usr/local/bin/python*
+    echo ""
+    echo "installed pip versions:"
     ls -lrt /usr/local/bin/pip*
     exit 1
 fi
