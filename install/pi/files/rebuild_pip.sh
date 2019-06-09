@@ -31,7 +31,7 @@ if [[ ! -e ${venvpath}/bin/activate ]]; then
 fi
 
 if [[ -e ${venvpath}/bin/activate ]]; then
-    anmt "activating venv: ${venvpath}"
+    anmt "$(whoami) is activating venv: ${venvpath}"
     source ${venvpath}/bin/activate
 
     anmt "upgrading pip and setuptools:"

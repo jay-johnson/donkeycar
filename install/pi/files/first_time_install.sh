@@ -5,8 +5,6 @@ if [[ -e ${DCPATH}/install/pi/files/bash_colors.sh ]]; then
     source ${DCPATH}/install/pi/files/bash_colors.sh
 fi
 
-echo ""
-echo ""
 anmt "letting services start"
 date +"%Y-%m-%d %H:%M:%S"
 sleep 30
@@ -98,14 +96,20 @@ if [[ ! -e /usr/local/bin/python${python_version} ]] || [[ ! -e /usr/local/bin/p
 fi
 
 if [[ ! -e /opt/dc ]]; then
-    anmt "installing repo" >> /var/log/sdinstall.log 2>&1
-    echo "sudo -u pi /bin/sh -c \"/opt/dc/install/pi/docker/repo/run.sh >> /var/log/sdinstall.log 2>&1\""
-    sudo -u pi /bin/sh -c "/opt/dc/install/pi/docker/repo/run.sh >> /var/log/sdinstall.log 2>&1"
+    if [[ -e /var/log/sdrepo.log ]]; then
+        echo "" >> /var/log/sdrepo.log
+        echo "" >> /var/log/sdrepo.log
+        echo "--------------------------" >> /var/log/sdrepo.log
+        echo "installing repo /opt/dc/install/pi/docker/repo/run.sh - $(date +"%Y-%m-%d %H:%M:%S")" >> /var/log/sdupdate.log
+    fi
+    anmt "installing repo" >> /var/log/sdrepo.log 2>&1
+    echo "sudo -u pi /bin/sh -c \"/opt/dc/install/pi/docker/repo/run.sh >> /var/log/sdrepo.log 2>&1\""
+    sudo -u pi /bin/sh -c "/opt/dc/install/pi/docker/repo/run.sh >> /var/log/sdrepo.log 2>&1"
     if [[ "$?" != "0" ]]; then
-        err "failed to install repo on the donkey car os: /opt/dc/install/pi/docker/repo/run.sh" >> /var/log/sdinstall.log 2>&1
+        err "failed to install repo on the donkey car os: /opt/dc/install/pi/docker/repo/run.sh" >> /var/log/sdrepo.log 2>&1
         exit 1
     fi
-    good "done - installing repo" >> /var/log/sdinstall.log 2>&1
+    good "done - installing repo" >> /var/log/sdrepo.log 2>&1
 fi
 
 if [[ ! -e /opt/dc ]]; then
@@ -114,6 +118,12 @@ if [[ ! -e /opt/dc ]]; then
 fi
 
 if [[ -e ${DCPATH}/install/pi/files/rebuild_pip.sh ]]; then
+    if [[ -e /var/log/sdrepo.log ]]; then
+        echo "" >> /var/log/sdrepo.log
+        echo "" >> /var/log/sdrepo.log
+        echo "--------------------------" >> /var/log/sdrepo.log
+        echo "rebuilding pip ${DCPATH}/install/pi/files/rebuild_pip.sh - $(date +"%Y-%m-%d %H:%M:%S")" >> /var/log/sdupdate.log
+    fi
     anmt "rebuilding pip in ${DCPATH} with: ${DCPATH}/install/pi/files/rebuild_pip.sh"
     chmod 777 ${DCPATH}/install/pi/files/rebuild_pip.sh
     echo "sudo -u pi /bin/sh -c \"${DCPATH}/install/pi/files/rebuild_pip.sh >> /var/log/sdrepo.log 2>&1\""
