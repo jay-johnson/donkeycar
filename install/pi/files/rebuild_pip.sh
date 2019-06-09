@@ -11,35 +11,33 @@ venvpath="/opt/venv"
 if [[ "${DCVENVDIR}" != "" ]]; then
     venvpath="${DCVENVDIR}"
 fi
-user_to_use="pi"
-if [[ "${REMOTE_USER}" != "" ]]; then
-    user_to_use="${REMOTE_USER}"
-fi
 
 if [[ ! -e ${venvpath}/bin/activate ]]; then
-    anmt "creating venv: ${venvpath} by ${user_to_use} user with python runtime: $(ls -l /usr/local/bin/python3 | awk '{print $NF}')"
-    sudo -u ${user_to_use} /bin/sh -c "virtualenv -p /usr/local/bin/python3.7 ${venvpath}"
+    anmt "creating venv: ${venvpath} python runtime: $(ls -l /usr/local/bin/python3 | awk '{print $NF}')"
+    virtualenv -p /usr/local/bin/python3.7 ${venvpath}
     if [[ "$?" != "0" ]]; then
         err "unable to create virtual env for python 3.7 with command:"
-        err "sudo -u ${user_to_use} /bin/sh -c \"virtualenv -p /usr/local/bin/python3.7 ${venvpath}\""
+        virtualenv -p /usr/local/bin/python3.7 ${venvpath}
         exit 1
     fi
 fi
 
 if [[ -e ${venvpath}/bin/activate ]]; then
-    anmt "setting permissions for ${user_to_} user on repo: ${repo_dir}"
-    sudo chown -R ${user_to_use}:${user_to_use} ${repo_dir}
-    sudo chown -R ${user_to_use}:${user_to_use} ${repo_dir}/.git
-    anmt "upgrading pip and setuptools: ${venvpath}"
-    sudo -u ${user_to_use} /bin/sh -c ". ${venvpath}/bin/activate && pip install --upgrade pip setuptools"
+    anmt "activating venv: ${venvpath}"
+    source ${venvpath}/bin/activate
+
+    anmt "upgrading pip and setuptools:"
+    pip install --upgrade pip setuptools
 
     if [[ -e ${repo_dir} ]]; then
+        pushd ${repo_dir} >> /dev/null 2>&1
         anmt "checking repo status: ${repo_dir}"
-        sudo -u ${user_to_use} /bin/sh -c "cd ${repo_dir} && git status"
+        git status
         anmt "pulling the latest from $(cat ${repo_dir}/.git/config | grep url | awk '{print $NF}')"
-        sudo -u ${user_to_use} /bin/sh -c "cd ${repo_dir} && git pull"
+        git pull
         anmt "installing pips: pip install --upgrade -e ."
-        sudo -u ${user_to_use} /bin/sh -c "cd ${repo_dir} && . ${venvpath}/bin/activate && pip install --upgrade -e . && pip list"
+        pip install --upgrade -e .
+        popd >> /dev/null 2>&1
     else
         err "did not find repo_dir: ${repo_dir}"
         exit 1
