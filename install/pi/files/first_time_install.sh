@@ -82,9 +82,19 @@ if [[ ! -e /opt/stay-on-python35 ]] && [[ ! -e /usr/local/bin/python${python_ver
         exit 1
     fi
     good "done - installing python ${python_version}.3" >> /var/log/sdinstall.log 2>&1
+fi
 
+if [[ ! -e /usr/local/bin/python${python_version} ]] && [[ ! -e /usr/local/bin/pip${python_version} ]]; then
+    err "failed to install python: ${python_version} /usr/local/bin/python${python_version} and /usr/local/bin/pip${python_version}"
+    ls -lrt /usr/local/bin/python*
+    ls -lrt /usr/local/bin/pip*
+    exit 1
+fi
+
+if [[ ! -e /opt/dc ]]; then
     anmt "installing repo" >> /var/log/sdinstall.log 2>&1
-    sudo /opt/dc/install/pi/docker/repo/run.sh >> /var/log/sdinstall.log 2>&1
+    echo "sudo -u pi /bin/sh -c \"/opt/dc/install/pi/docker/repo/run.sh >> /var/log/sdinstall.log 2>&1\""
+    sudo -u pi /bin/sh -c "/opt/dc/install/pi/docker/repo/run.sh >> /var/log/sdinstall.log 2>&1"
     if [[ "$?" != "0" ]]; then
         err "failed to install repo on the donkey car os: /opt/dc/install/pi/docker/repo/run.sh" >> /var/log/sdinstall.log 2>&1
         exit 1
@@ -92,10 +102,19 @@ if [[ ! -e /opt/stay-on-python35 ]] && [[ ! -e /usr/local/bin/python${python_ver
     good "done - installing repo" >> /var/log/sdinstall.log 2>&1
 fi
 
-if [[ -e ${DCPATH}/install/pi/files/rebuild_pip.sh ]]; then
-    anmt "rebuilding pip in ${DCPATH} with: ${DCPATH}/install/pi/files/rebuild_pip.sh"
-    chmod 777 ${DCPATH}/install/pi/files/rebuild_pip.sh
-    ${DCPATH}/install/pi/files/rebuild_pip.sh >> /var/log/sdrepo.log 2>&1
+if [[ ! -e /opt/dc ]]; then
+    anmt "unable to detect previously installed repo" >> /var/log/sdinstall.log 2>&1
+    if [[ -e ${DCPATH}/install/pi/files/rebuild_pip.sh ]]; then
+        anmt "rebuilding pip in ${DCPATH} with: ${DCPATH}/install/pi/files/rebuild_pip.sh"
+        chmod 777 ${DCPATH}/install/pi/files/rebuild_pip.sh
+        echo "sudo -u pi /bin/sh -c \"${DCPATH}/install/pi/files/rebuild_pip.sh >> /var/log/sdrepo.log 2>&1\""
+        sudo -u pi /bin/sh -c "${DCPATH}/install/pi/files/rebuild_pip.sh >> /var/log/sdrepo.log 2>&1"
+    fi
+fi
+
+if [[ ! -e /opt/dc ]]; then
+    err "failed to clone repository to /opt/dc"
+    exit 1
 fi
 
 # https://docs.fluentbit.io/manual/getting_started
