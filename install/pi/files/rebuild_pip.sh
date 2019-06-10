@@ -75,6 +75,7 @@ if [[ ! -e ${repo_dir} ]]; then
     fi
     exit 1
 else
+    pushd ${repo_dir} >> /dev/null 2>&1
     echo "checking repo status: ${repo_dir}"
     git status
     num_fetch_attempts=0
@@ -95,6 +96,12 @@ else
             fi
         fi
     done
+    echo "${repo} in ${repo_dir} checking out branch: ${branch}"
+    git checkout ${branch}
+    if [[ "$?" != "0" ]]; then
+        echo "failed to checkout ${repo} branch: ${branch} in ${repo_dir}"
+        ls -l ${repo_dir}/*
+    fi
     num_pull_attempts=0
     not_done="1"
     while [[ "${not_done}" == "1" ]]; do
@@ -113,6 +120,7 @@ else
             fi
         fi
     done
+    popd >> /dev/null 2>&1
 fi
 
 lg() {
