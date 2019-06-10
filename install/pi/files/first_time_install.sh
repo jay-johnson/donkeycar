@@ -6,6 +6,27 @@ export DCPATH="/opt/dc"
 export DCVENVDIR="/opt/venv"
 export DCPYTHONVERSION="3.7"
 
+lg() {
+    echo "$@"
+}
+inf() {
+    lg "$@"
+}
+anmt() {
+    lg "$@"
+}
+good() {
+    lg "$@"
+}
+err() {
+    lg "$@"
+}
+critical() {
+    lg "$@"
+}
+warn() {
+    lg "$@"
+}
 if [[ -e ${DCPATH}/install/pi/files/bash_colors.sh ]]; then
     source ${DCPATH}/install/pi/files/bash_colors.sh
 fi
@@ -168,26 +189,6 @@ else
         exit 1
     fi
     good "done - installing repo" >> /var/log/sdrepo.log 2>&1
-else
-    if [[ -e ${DCPATH}/install/pi/files/rebuild_pip.sh ]]; then
-        if [[ -e /var/log/sdrepo.log ]]; then
-            echo "" >> /var/log/sdrepo.log
-            echo "" >> /var/log/sdrepo.log
-            echo "--------------------------" >> /var/log/sdrepo.log
-            echo "rebuilding pip ${DCPATH}/install/pi/files/rebuild_pip.sh - $(date +"%Y-%m-%d %H:%M:%S")" >> /var/log/sdupdate.log
-        fi
-        anmt "rebuilding pip in ${DCPATH} with: ${DCPATH}/install/pi/files/rebuild_pip.sh"
-        chmod 777 ${DCPATH}/install/pi/files/rebuild_pip.sh
-        echo "sudo -u pi /bin/sh -c \"${DCPATH}/install/pi/files/rebuild_pip.sh >> /var/log/sdrepo.log 2>&1\""
-        sudo -u pi /bin/sh -c "${DCPATH}/install/pi/files/rebuild_pip.sh >> /var/log/sdrepo.log 2>&1"
-        if [[ "$?" != "0" ]]; then
-            err "failed to rebuild pips on the donkey car os: ${DCPATH}/install/pi/files/rebuild_pip.sh" >> /var/log/sdinstall.log 2>&1
-            exit 1
-        fi
-        good "done - installing repo" >> /var/log/sdinstall.log 2>&1
-    else
-        anmt "skipping pip rebuild"
-    fi
 fi
 
 if [[ ! -e /opt/dc ]]; then
