@@ -35,7 +35,7 @@ anmt "letting services start"
 date +"%Y-%m-%d %H:%M:%S"
 sleep 30
 
-python_version="3.7"
+python_version="${DCPYTHONVERSION}"
 
 anmt "getting updates"
 date +"%Y-%m-%d %H:%M:%S"
