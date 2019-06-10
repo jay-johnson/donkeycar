@@ -19,9 +19,30 @@ branch="d1"
 if [[ "${DCBRANCH}" != "" ]]; then
     branch="${DCBRANCH}"
 fi
+python_version="3.7"
+if [[ "${DCPYTHONVERSION}" != "" ]]; then
+    python_version="${DCPYTHONVERSION}"
+fi
+export DCPYTHONVERSION="${python_version}"
+
+if [[ ! -e /usr/local/bin/python${python_version} ]]; then
+    anmt "installing python_version: ${python_version}"
+    if [[ ! -e /opt/dc/install/pi/docker/python${python_version}/run.sh ]]; then
+        err "unsupported python version: ${python_version}"
+        exit 1
+    else
+        sudo /opt/dc/install/pi/docker/python${python_version}/run.sh
+        if [[ "$?" != "0" ]]; then
+            err "Failed to install python with: sudo /opt/dc/install/pi/docker/python${python_version}/run.sh"
+            exit 1
+        else
+            good "${python_version} - installed"
+        fi
+    fi
+fi
 
 if [[ ! -e ${venvpath}/bin/activate ]]; then
-    anmt "creating venv: ${venvpath} python runtime: $(ls -l /usr/local/bin/python3 | awk '{print $NF}')"
+    anmt "creating venv: ${venvpath} python runtime: $(ls -l /usr/local/bin/python3.7 | awk '{print $NF}')"
     virtualenv -p /usr/local/bin/python3.7 ${venvpath}
     if [[ "$?" != "0" ]]; then
         err "unable to create virtual env for python 3.7 with command:"
@@ -34,16 +55,43 @@ if [[ -e ${venvpath}/bin/activate ]]; then
     anmt "$(whoami) is activating venv: ${venvpath}"
     source ${venvpath}/bin/activate
 
-    anmt "upgrading pip and setuptools:"
-    pip install --upgrade pip setuptools
+    not_done="1"
+    while [[ "${not_done}" == "1" ]]; do
+        anmt "upgrading pip and setuptools: $(date +'%Y-%m-%d %H:%M:%S')"
+        pip install --upgrade pip setuptools
+        if [[ "$?" == "0" ]]; then
+            not_done="0"
+        else
+            anmt " - sleeping for 10 seconds before retrying"
+            sleep 10
+        fi
+    done
 
     if [[ ! -e ${repo_dir} ]]; then
-        anmt "cloning ${repo}"
-        git clone ${repo} ${repo_dir}
-        if [[ "$?" != "0" ]]; then
-            err "failed to clone repo: ${repo} ${repo_dir}"
-            exit 1
-        fi
+        not_done="1"
+        num_clone_attempts=0
+        while [[ "${not_done}" == "1" ]]; do
+            anmt "cloning ${repo} to ${repo_dir}"
+            git clone ${repo} ${repo_dir}
+            if [[ "$?" == "0" ]]; then
+                not_done="0"
+            else
+                anmt " - sleeping for 10 seconds before retrying - git clone"
+                num_clone_attempts=$((num_clone_attempts++))
+                if [[ ${num_clone_attempts} -gt 10000000 ]]; then
+                    err "failed after 10000000 attempts"
+                    exit 1
+                else
+                    if [[ -e ~/.ssh/id_rsa.pub ]]; then
+                        err "please check the ssh key is supported for cloning the repo:"
+                        cat ~/.ssh/id_rsa.pub
+                    else
+                        err "no public ssh key detected in ~/.ssh/id_rsa.pub - please confirm the repo supports public reads"
+                    fi
+                fi
+                sleep 10
+            fi
+        done
         cd ${repo_dir}
         echo "${repo} in ${repo_dir} checking out branch: ${branch}"
         git checkout ${branch}
@@ -55,7 +103,7 @@ if [[ -e ${venvpath}/bin/activate ]]; then
     fi
 
     if [[ ! -e ${repo_dir} ]]; then
-        err "failed to find ${repo_dir} after clone attempt"
+        err "failed to find ${repo_dir} after clone attempts"
         err "git clone ${repo} ${repo_dir}"
         if [[ -e ~/.ssh/id_rsa.pub ]]; then
             echo ""
@@ -74,10 +122,28 @@ if [[ -e ${venvpath}/bin/activate ]]; then
         pushd ${repo_dir} >> /dev/null 2>&1
         anmt "checking repo status: ${repo_dir}"
         git status
-        anmt "pulling the latest from $(cat ${repo_dir}/.git/config | grep url | awk '{print $NF}')"
-        git pull
-        anmt "installing pips: pip install --upgrade -e ."
-        pip install --upgrade -e .
+        not_done="1"
+        while [[ "${not_done}" == "1" ]]; do
+            anmt "pulling the latest from $(cat ${repo_dir}/.git/config | grep url | awk '{print $NF}')"
+            git pull
+            if [[ "$?" == "0" ]]; then
+                not_done="0"
+            else
+                anmt " - sleeping for 10 seconds before retrying - pulling the latest for repo: ${repo}"
+                sleep 10
+            fi
+        done
+        not_done="1"
+        while [[ "${not_done}" == "1" ]]; do
+            anmt "installing pips $(date +'%Y-%m-%d %H:%M:%S'): pip install --upgrade -e ."
+            pip install --upgrade -e .
+            if [[ "$?" == "0" ]]; then
+                not_done="0"
+            else
+                anmt " - sleeping for 10 seconds before retrying - install + upgrading the pips"
+                sleep 10
+            fi
+        done
         popd >> /dev/null 2>&1
     else
         err "did not find repo_dir: ${repo_dir}"
