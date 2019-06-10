@@ -8,15 +8,15 @@ export DCPYTHONVERSION="3.7"
 
 if [[ ! -e /var/log/sdrepo.log ]]; then
     touch /var/log/sdrepo.log
+    chmod 666 /var/log/sdrepo.log
 fi
-chmod 666 /var/log/sdrepo.log
 echo "" >> /var/log/sdrepo.log
 echo "-----------------------" >> /var/log/sdrepo.log
 echo "$(date +'%Y-%m-%d %H:%M:%S') - starting repo build - ${DCREPO} ${DCBRANCH} ${DCPATH} ${DCVENVDIR} ${DCPYTHONVERSION}" >> /var/log/sdrepo.log
 
 if [[ -e /opt/dc/install/pi/files/rebuild_pip.sh ]]; then
     if [[ "$(whoami)" != "pi" ]]; then
-        echo "local building as pi user"
+        echo "local building as sudo -u pi user"
         sudo -u pi /bin/sh -c "/opt/dc/install/pi/files/rebuild_pip.sh >> /var/log/sdrepo.log 2>&1"
     else
         echo "local building as $(whoami) user"
@@ -37,7 +37,7 @@ else
             if [[ -e /tmp/rebuild_pip.sh ]]; then
                 chmod 777 /tmp/rebuild_pip.sh
                 if [[ "$(whoami)" != "pi" ]]; then
-                    echo "curl - rebuilding as pi user"
+                    echo "curl - rebuilding as sudo -u pi user"
                     sudo -u pi /bin/sh -c "/tmp/rebuild_pip.sh >> /var/log/sdrepo.log 2>&1"
                 else
                     echo "curl - rebuilding as $(whoami) user"
