@@ -55,20 +55,25 @@ This will download, burn, resize to maximize storage, mount, deploy the latest c
 
 ### Burn Custom Images In Google Drive
 
-The burning tools work with any publicly-shared google drive file. Here is the shared url from a google drive file. This zip file contains one image file that was installed, burned and allowed to update the OS using the [jay-johnson fork on the d1 branch](https://github.com/jay-johnson/donkeycar). By default this OS image uses python 3.7 with a virtual environment in **/opt/venv**. Here is the google drive file url after sharing it:
+The burning tools work with any publicly-shared google drive file. Here is the shared url from a google drive file. This zip file contains one image file that was installed, burned and allowed to update the OS using the [jay-johnson fork on the d1 branch](https://github.com/jay-johnson/donkeycar). By default this new OS image already has python 3.7 with a virtual environment in **/opt/venv** installed with the pip ready to go. Here is the google drive file url after sharing it:
 
 https://drive.google.com/open?id=1OBcPjdZG-vug5Qyq2tYF6zjtVBQffbsQ
 
 From the url above, the google file id is the **id** argument's value: **1OBcPjdZG-vug5Qyq2tYF6zjtVBQffbsQ**
 
-If you want to burn a custom image in a shared google drive location, then please use the **-f** argument during the burn step:
+If you want to download the new ~4 GB image from google drive, extract it locally (another ~14 GB) and then burn the extracted custom image from the shared google drive location (a zip file), then please use the **-f** argument during the burn step:
 
 ```
 # please run as root:
 ./burn-image-to-sd-card.sh -f 1OBcPjdZG-vug5Qyq2tYF6zjtVBQffbsQ
 ```
 
-By default the burn tools use the original donkey car image with [file id 1vr4nEXLEh4xByKAXik8KhK3o-XWgo2fQ](https://drive.google.com/file/d/1vr4nEXLEh4xByKAXik8KhK3o-XWgo2fQ/view) running python 3.5 from the [donkey car dev branch](https://github.com/autorope/donkeycar)
+By default the burn tools use the original donkey car image with [google file id 1vr4nEXLEh4xByKAXik8KhK3o-XWgo2fQ](https://drive.google.com/file/d/1vr4nEXLEh4xByKAXik8KhK3o-XWgo2fQ/view) running python 3.5 from the [donkey car dev branch](https://github.com/autorope/donkeycar)
+
+```
+# please run as root:
+./burn-image-to-sd-card.sh -f 1vr4nEXLEh4xByKAXik8KhK3o-XWgo2fQ
+```
 
 ### SD Card Workflow
 

@@ -31,11 +31,19 @@ dcrepo="https://github.com/jay-johnson/donkeycar.git"
 dcbranch="d1"
 
 # original donkey car dev branch 2.5.0 with python 3.5 build:
-fileid="1vr4nEXLEh4xByKAXik8KhK3o-XWgo2fQ" # version: donly_2.5.0_pi3.img
+# https://drive.google.com/file/d/1vr4nEXLEh4xByKAXik8KhK3o-XWgo2fQ/view
+fileid="1vr4nEXLEh4xByKAXik8KhK3o-XWgo2fQ" # contains zip file: donkey_2.5.0_pi3.zip
+#
+# or you can use custom images by the google file id from the url:
+#
+# donkey car jay-johnson@d1 branch with python 3.7 build:
+# https://drive.google.com/file/d/1OBcPjdZG-vug5Qyq2tYF6zjtVBQffbsQ/view
+# fileid="1OBcPjdZG-vug5Qyq2tYF6zjtVBQffbsQ" # contains zip file: donkey_python37_from_d1_branch.zip
+# or you can pass this file id as an arg:
+# ./burn-image-to-sd-card.sh -f 1OBcPjdZG-vug5Qyq2tYF6zjtVBQffbsQ
+#
+# after setting them, just assign to an env var for child shell scripts to use
 export DCGID="${fileid}"
-# donkey car jay-johnson@d1 branch 2.6.1 with python 3.7 build:
-# export DCGID="1OBcPjdZG-vug5Qyq2tYF6zjtVBQffbsQ"
-# or as an arg: -f 1OBcPjdZG-vug5Qyq2tYF6zjtVBQffbsQ
 
 # location where the zip + img files are stored:
 download_dir="${DCPATH}/image_files"
