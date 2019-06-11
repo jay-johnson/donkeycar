@@ -24,20 +24,37 @@ if [[ "${DEVICE}" == "" ]]; then
         export DEVICE=/dev/sdf
     fi
 fi
-export DCGID="1vr4nEXLEh4xByKAXik8KhK3o-XWgo2fQ"
-export DCIMAGENAME="donkey_2.5.0_pi3.img"
-export DCGDOWNLOADPATH="${DCPATH}/files/dc.zip"
-export DCIMAGE="${DCPATH}/files/dc.img"
+
+# install this repo:
+dcrepo="https://github.com/jay-johnson/donkeycar.git"
+# install this branch:
+dcbranch="d1"
+
+# original donkey car dev branch 2.5.0 with python 3.5 build:
+fileid="1vr4nEXLEh4xByKAXik8KhK3o-XWgo2fQ" # version: donly_2.5.0_pi3.img
+export DCGID="${fileid}"
+# donkey car jay-johnson@d1 branch 2.6.1 with python 3.7 build:
+# export DCGID="1OBcPjdZG-vug5Qyq2tYF6zjtVBQffbsQ"
+# or as an arg: -f 1OBcPjdZG-vug5Qyq2tYF6zjtVBQffbsQ
+
+# location where the zip + img files are stored:
+download_dir="${DCPATH}/image_files"
+if [[ "${DCDOWNLOADDIR}" != "" ]]; then
+    download_dir="${DCDOWNLOADDIR}"
+fi
+# mount path where the hdd partition 2 mounts on your host:
 export DCMOUNTPATH="${DCPATH}/dcdisk"
+# set resize to max available space by default
 export DCGBTOADD="max"
+# set to your user before running
 if [[ "${DCUSER}" == "" ]]; then
     export DCUSER="jay"
 fi
 
 burn_enabled="1"
 download_enabled="1"
-dcrepo="https://github.com/jay-johnson/donkeycar.git"
-dcbranch="d1"
+# try custom file id's with:
+# ./burn-image-to-sd-card.sh -f GOOGLE_DRIVE_FILE_ID
 if [[ "${DCGID}" != "" ]]; then
     fileid="${DCGID}"
 fi
@@ -61,6 +78,7 @@ while (( "$#" )); do
             err "missing google file id"
             exit 1
         fi
+        fileid="${2}"
         export DCGID="${2}"
         shift 2
         ;;
@@ -165,6 +183,18 @@ eval set -- "$PARAMS"
 
 export DCREPO="${dcrepo}"
 export DCBRANCH="${dcbranch}"
+# temp storage pathing for download and extraction:
+export DCGDOWNLOADPATH="${download_dir}/google-fileid-${DCGID}.zip"
+export DCIMAGE="${download_dir}/google-fileid-${DCGID}.img"
+
+if [[ ! -e ${download_dir} ]]; then
+    mkdir -p -m 776 ${download_dir}
+    if [[ ! -e ${download_dir} ]]; then
+        err "failed to create download directory - please create it manually and retry:"
+        err "mkdir -p -m 776 ${download_dir}"
+        exit 1
+    fi
+fi
 
 anmt "checking ${DEVICE} partitions"
 parted ${DEVICE} print free
@@ -172,7 +202,8 @@ inf ""
 
 if [[ "${download_enabled}" == "1" ]]; then
     anmt "ensuring ${DCGID} image zip is downloaded from google drive"
-    ${DCPATH}/download-google-drive-dc-img.sh
+    anmt "${DCPATH}/download-google-drive-dc-img.sh ${fileid} ${DCIMAGE}"
+    ${DCPATH}/download-google-drive-dc-img.sh ${fileid} ${DCIMAGE}
     if [[ "$?" != "0" ]]; then
         err "failed to download ${DCGID} as local file: ${DCIMAGE}"
         exit 1

@@ -26,7 +26,7 @@ fi
 # /opt/first_time_install.sh
 # to trigger package updates
 if [ -e /opt/first_time_install.sh ]; then
-    if [[ -e /var/log/sdinstall.log ]]; then
+    if [ -e /var/log/sdinstall.log ]; then
         echo "" >> /var/log/sdinstall.log
         echo "" >> /var/log/sdinstall.log
         echo "--------------------------" >> /var/log/sdinstall.log
@@ -48,7 +48,7 @@ fi
 # /opt/run_updater.sh
 # to trigger package updates
 if [ -e /opt/run_updater.sh ]; then
-    if [[ -e /var/log/sdupdate.log ]]; then
+    if [ -e /var/log/sdupdate.log ]; then
         echo "" >> /var/log/sdupdate.log
         echo "" >> /var/log/sdupdate.log
         echo "--------------------------" >> /var/log/sdupdate.log
