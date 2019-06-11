@@ -11,6 +11,8 @@
 #
 # By default this script does nothing.
 
+echo "$(date +"%Y-%m-%d %H:%M:%S") - running /etc/rc.local"
+
 # Print the IP address
 _IP=$(hostname -I) || true
 if [ "$_IP" ]; then
@@ -75,5 +77,7 @@ if [ -e /opt/login_to_docker.sh ]; then
     /opt/login_to_docker.sh
     EXITVALUE=$?
 fi
+
+echo "$(date +"%Y-%m-%d %H:%M:%S") - done running /etc/rc.local"
 
 exit 0
