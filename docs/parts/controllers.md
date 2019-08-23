@@ -1,21 +1,39 @@
 # Controller Parts
 
-## Local Web Controller
+## Web Controller
 
 The default controller to drive the car with your phone or browser. This has a web live preview of camera. Control options include:
 
 1. A virtual joystick
 2. The tilt, when using a mobile device with supported accelerometer
 3. A physical joystick using the web adapter. Support varies per browser, OS, and joystick combination.
+4. Keyboard input via the 'ikjl' keys.
 
+> Note: Recently iOS has [disabled default Safari](https://www.macrumors.com/2019/02/04/ios-12-2-safari-motion-orientation-access-toggle/) access to motion control. 
 
-## Physical Joystick Controller
+## Joystick Controller
+Many people find it easier to control the car using a game controller. There are several parts that provide this option.
 
 The default web controller may be replaced with a one line change to use a physical joystick part for input. This uses the OS device /dev/input/js0 by default. In theory, any joystick device that the OS mounts like this can be used. In practice, the behavior will change depending on the model of joystick ( Sony, or knockoff ), or XBox controller and the Bluetooth driver used to support it. The default code has been written and tested with a [Sony brand PS3 Sixaxis controller](https://www.ebay.com/sch/i.html?_nkw=Sony+Playstation+Dualshock+PS3+controller+OEM). Other controllers may work, but will require alternative Bluetooth installs, and tweaks to the software for correct axis and buttons.
 
+### These joysticks are known to work:
+
+* [Logitech Gamepad F710](https://www.amazon.com/Logitech-940-000117-Gamepad-F710/dp/B0041RR0TW)
+* [Sony PS3 Sixaxis OEM](https://www.ebay.com/sch/i.html?&_nkw=Sony+PS3+Sixaxis+OEM) (Not compatible with Jetson Nano)
+* [Sony PS4 Dualshock OEM](https://www.ebay.com/sch/i.html?&_nkw=Sony+PS4+Dualshock+OEM)
+* [WiiU Pro](https://www.amazon.com/Nintendo-Wii-U-Pro-Controller-Black/dp/B00MUY0OFU)
+* [XBox Controller](https://www.amazon.com/Xbox-Wireless-Controller-Blue-one/dp/B01M0F0OIY)
+* [SteelSeries Nimbus](https://www.amazon.com/gp/product/B01AZC3III) (works only on TX2 jetpack 4.2+, may work on the Nano)
+
+These can be enabled by finding the CONTROLLER_TYPE in your myconfig.py and setting it to the correct string identifier ( after disabling the comment ).
+
 These can be used plugged in with a USB cable. It's been much more convenient to setup Bluetooth for a wireless control.
 
-If you have a non PS3 controller, or having troubles getting your controller buttons to work, checkout this (guide)[https://github.com/tawnkramer/donkey/blob/master/docs/utility/donkey.md#joystick-wizard] to making python code that matches your device.
+There are controller specific setup details below.
+
+### Customizing or Adding a New Controller Type
+> Note: If are having troubles getting your controller to work, try this [Joystick Wizard](https://github.com/autorope/donkeycar/blob/master/docs/utility/donkey.md#joystick-wizard). This can help customize your buttons and axis inputs as well.
+
 
 ### Change to config.py or run with --js
 
@@ -24,6 +42,11 @@ python manage.py drive --js
 ```
 
 Will enable driving with the joystick. This disables the live preview of the camera and the web page features. If you modify config.py to make USE_JOYSTICK_AS_DEFAULT = True, then you do not need to run with the --js.
+
+----
+
+----
+
 
 ## PS3 Controller
 
@@ -65,6 +88,31 @@ To test that the Bluetooth PS3 remote is working, verify that /dev/input/js0 exi
 ls /dev/input/js0
 ```
 
+##### Troubleshooting
+
+In case the BT connection on the Raspberry Pi does not work, you see might something like this in `bluetoothctl`:
+```
+[NEW] Controller 00:11:22:33:44:55 super-donkey [default]
+[NEW] Device AA:BB:CC:DD:EE:FF PLAYSTATION(R)3 Controller
+[CHG] Device AA:BB:CC:DD:EE:FF Connected: yes
+[CHG] Device AA:BB:CC:DD:EE:FF Connected: no
+[CHG] Device AA:BB:CC:DD:EE:FF Connected: yes
+[CHG] Device AA:BB:CC:DD:EE:FF Connected: no
+[CHG] Device AA:BB:CC:DD:EE:FF Connected: yes
+...
+[CHG] Device AA:BB:CC:DD:EE:FF Connected: yes
+[CHG] Device AA:BB:CC:DD:EE:FF Connected: no
+[bluetooth]#
+```
+Try updating the Linux kernel and firmware by running:
+```
+sudo rpi-update
+```
+And then reboot:
+```
+sudo reboot
+```
+
 ### Charging PS3 Sixaxis Joystick
 
 For some reason, they don't like to charge in a powered USB port that doesn't have an active Bluetooth control and OS driver. This means a phone type USB charger will not work. Try a powered Linux or mac laptop USB port. You should see the lights blink after plugging in and hitting center PS logo.
@@ -81,6 +129,12 @@ Sometimes when you plug-in the PS3 joystick it starts taking over your mouse. If
 ```
 xinput set-prop "Sony PLAYSTATION(R)3 Controller" "Device Enabled" 0
 ```
+
+
+----
+
+----
+
 
 ## PS4 Controller
 
@@ -112,6 +166,11 @@ Press and hold **Share** button, then press and hold **PS** button until the lig
 
 To disconnect, kill the process `ds4drv` and hold **PS** for 10 seconds to power off the controller.
 
+----
+
+----
+
+
 ## XBox One Controller
 
 ### bluetooth pairing
@@ -124,10 +183,10 @@ The XBox One controller requires that the bluetooth disable_ertm parameter be se
 - add the line: `options bluetooth disable_ertm=1`
 - reboot so that this takes affect.
 - after reboot you can verify that disable_ertm is set to true entering this
-  command oin a terminal: `cat /sys/module/bluetooth/parameters/disable_ertm`
+  command in a terminal: `cat /sys/module/bluetooth/parameters/disable_ertm`
 - the result should print 'Y'.  If not, make sure the above steps have been done correctly.
 
-Once that is done, you can pair your controller to your Raspberry Pi using the blue tooth tool.  Enter the following command into a bash shell prompt:  
+Once that is done, you can pair your controller to your Raspberry Pi using the bluetooth tool.  Enter the following command into a bash shell prompt:  
 
 ```bash
 sudo bluetoothctl
@@ -164,5 +223,25 @@ quit
 
 Now that your controller is trusted, it should automatically connect with your Raspberry Pi when they are both turned on.  If your controller fails to connect, run the bluetoothctl steps again to reconnect.
 
+## Discovering / Modifying Button and Axis Mappings for Game Controllers
 
+To discover and modify your default button mappings (for your controllers) you can use the `Joystick` class defined in `donkeycar.parts.controller`.
 
+After setting up `Donkey` and activating your `virtualenv` you can do the following.
+First launch a `python` shell session.
+
+```python
+from donkeycar.parts.controller import Joystick
+
+joystick = Joystick() # uses the connected joystick at /dev/input/js0
+
+joystick.init() # Initialize
+
+joystick.show_map() # Will give you a list of axes and buttons detected.
+
+# Now you can use the controller and check for the outputs. This will
+# tell you which buttons and axes are active when you are using the
+# controller.
+while True:
+    joystick.poll()
+```

@@ -107,4 +107,3 @@ class TestTubWriter(unittest.TestCase):
         assert tub.meta['location'] == "Here2"
         assert t2.meta['inputs'] == self.inputs
         assert t2.meta['location'] == "Here2"
-

@@ -14,12 +14,31 @@ models to help direct the vehicles motion.
 
 import os
 import numpy as np
-import keras
+
+from tensorflow import ConfigProto, Session
+from tensorflow.python import keras
+from tensorflow.python.keras.layers import Input, Dense
+from tensorflow.python.keras.models import Model, Sequential
+from tensorflow.python.keras.layers import Convolution2D, MaxPooling2D, Reshape, BatchNormalization
+from tensorflow.python.keras.layers import Activation, Dropout, Flatten, Cropping2D, Lambda
+from tensorflow.python.keras.layers.merge import concatenate
+from tensorflow.python.keras.layers import LSTM
+from tensorflow.python.keras.layers.wrappers import TimeDistributed as TD
+from tensorflow.python.keras.layers import Conv3D, MaxPooling3D, Cropping3D, Conv2DTranspose
 
 import donkeycar as dk
 
+# Override keras session to work around a bug in TF 1.13.1
+# Remove after we upgrade to TF 1.14 / TF 2.x.
+config = ConfigProto()
+config.gpu_options.allow_growth = True
+session = Session(config=config)
+keras.backend.set_session(session)
 
 class KerasPilot(object):
+    '''
+    Base class for Keras models that will provide steering and throttle to guide a car.
+    '''
     def __init__(self):
         self.model = None
         self.optimizer = "adam"
@@ -86,6 +105,17 @@ class KerasPilot(object):
 
 
 class KerasCategorical(KerasPilot):
+    '''
+    The KerasCategorical pilot breaks the steering and throttle decisions into discreet
+    angles and then uses categorical cross entropy to train the network to activate a single
+    neuron for each steering and throttle choice. This can be interesting because we
+    get the confidence value as a distribution over all choices.
+    This uses the dk.utils.linear_bin and dk.utils.linear_unbin to transform continuous
+    real numbers into a range of discreet values for training and runtime.
+    The input and output are therefore bounded and must be chosen wisely to match the data.
+    The default ranges work for the default setup. But cars which go faster may want to
+    enable a higher throttle range. And cars with larger steering throw may want more bins.
+    '''
     def __init__(self, input_shape=(120, 160, 3), throttle_range=0.5, roi_crop=(0, 0), *args, **kwargs):
         super(KerasCategorical, self).__init__(*args, **kwargs)
         self.model = default_categorical(input_shape, roi_crop)
@@ -105,21 +135,19 @@ class KerasCategorical(KerasPilot):
 
         img_arr = img_arr.reshape((1,) + img_arr.shape)
         angle_binned, throttle = self.model.predict(img_arr)
-        #in order to support older models with linear throttle,
-        #we will test for shape of throttle to see if it's the newer
-        #binned version.
         N = len(throttle[0])
-        
-        if N > 0:
-            throttle = dk.utils.linear_unbin(throttle, N=N, offset=0.0, R=self.throttle_range)
-        else:
-            throttle = throttle[0][0]
+        throttle = dk.utils.linear_unbin(throttle, N=N, offset=0.0, R=self.throttle_range)
         angle_unbinned = dk.utils.linear_unbin(angle_binned)
         return angle_unbinned, throttle
     
     
     
 class KerasLinear(KerasPilot):
+    '''
+    The KerasLinear pilot uses one neuron to output a continous value via the 
+    Keras Dense layer with linear activation. One each for steering and throttle.
+    The output is not bounded.
+    '''
     def __init__(self, num_outputs=2, input_shape=(120, 160, 3), roi_crop=(0, 0), *args, **kwargs):
         super(KerasLinear, self).__init__(*args, **kwargs)
         self.model = default_n_linear(num_outputs, input_shape, roi_crop)
@@ -215,7 +243,7 @@ class KerasBehavioral(KerasPilot):
 
 class KerasLocalizer(KerasPilot):
     '''
-    A Keras part that take an image and Behavior vector as input,
+    A Keras part that take an image as input,
     outputs steering and throttle, and localisation category
     '''
     def __init__(self, model=None, num_outputs=2, num_behavior_inputs=2, num_locations=8, input_shape=(120, 160, 3), *args, **kwargs):
@@ -247,21 +275,22 @@ class KerasLocalizer(KerasPilot):
         
         return angle_unbinned, throttle, loc
 
+def adjust_input_shape(input_shape, roi_crop):
+    height = input_shape[0]
+    new_height = height - roi_crop[0] - roi_crop[1]
+    return (new_height, input_shape[1], input_shape[2])
+
+
 def default_categorical(input_shape=(120, 160, 3), roi_crop=(0, 0)):
-    from keras.layers import Input, Dense
-    from keras.models import Model
-    from keras.layers import Convolution2D, MaxPooling2D, Reshape, BatchNormalization
-    from keras.layers import Activation, Dropout, Flatten, Dense, Cropping2D, Lambda
-    
 
     opt = keras.optimizers.Adam()
-    drop = 0.4
+    drop = 0.2
+
+    #we now expect that cropping done elsewhere. we will adjust our expeected image size here:
+    input_shape = adjust_input_shape(input_shape, roi_crop)
 
     img_in = Input(shape=input_shape, name='img_in')                      # First layer, input layer, Shape comes from camera.py resolution, RGB
     x = img_in
-    x = Cropping2D(cropping=(roi_crop, (0,0)))(x) #trim configured pixels off top and bottom
-    #x = Lambda(lambda x: x/127.5 - 1.)(x) # normalize and re-center
-    x = BatchNormalization()(x)
     x = Convolution2D(24, (5,5), strides=(2,2), activation='relu', name="conv2d_1")(x)       # 24 features, 5 pixel x 5 pixel kernel (convolution, feauture) window, 2wx2h stride, relu activation
     x = Dropout(drop)(x)                                                      # Randomly drop out (turn off) 10% of the neurons (Prevent overfitting)
     x = Convolution2D(32, (5,5), strides=(2,2), activation='relu', name="conv2d_2")(x)       # 32 features, 5px5p kernel window, 2wx2h stride, relu activatiion
@@ -294,19 +323,16 @@ def default_categorical(input_shape=(120, 160, 3), roi_crop=(0, 0)):
     return model
 
 
+
 def default_n_linear(num_outputs, input_shape=(120, 160, 3), roi_crop=(0, 0)):
-    from keras.layers import Input, Dense
-    from keras.models import Model
-    from keras.layers import Convolution2D, MaxPooling2D, Reshape, BatchNormalization
-    from keras.layers import Activation, Dropout, Flatten, Cropping2D, Lambda
 
     drop = 0.1
+
+    #we now expect that cropping done elsewhere. we will adjust our expeected image size here:
+    input_shape = adjust_input_shape(input_shape, roi_crop)
     
     img_in = Input(shape=input_shape, name='img_in')
     x = img_in
-    x = Cropping2D(cropping=(roi_crop, (0,0)))(x) #trim pixels off top and bottom
-    #x = Lambda(lambda x: x/127.5 - 1.)(x) # normalize and re-center
-    x = BatchNormalization()(x)
     x = Convolution2D(24, (5,5), strides=(2,2), activation='relu', name="conv2d_1")(x)
     x = Dropout(drop)(x)
     x = Convolution2D(32, (5,5), strides=(2,2), activation='relu', name="conv2d_2")(x)
@@ -336,23 +362,14 @@ def default_n_linear(num_outputs, input_shape=(120, 160, 3), roi_crop=(0, 0)):
 
 
 def default_imu(num_outputs, num_imu_inputs, input_shape):
-    '''
-    Notes: this model depends on concatenate which failed on keras < 2.0.8
-    '''
 
-    from keras.layers import Input, Dense
-    from keras.models import Model
-    from keras.layers import Convolution2D, MaxPooling2D, Reshape, BatchNormalization
-    from keras.layers import Activation, Dropout, Flatten, Cropping2D, Lambda
-    from keras.layers.merge import concatenate
-    
+    #we now expect that cropping done elsewhere. we will adjust our expeected image size here:
+    #input_shape = adjust_input_shape(input_shape, roi_crop)
+
     img_in = Input(shape=input_shape, name='img_in')
     imu_in = Input(shape=(num_imu_inputs,), name="imu_in")
     
     x = img_in
-    x = Cropping2D(cropping=((60,0), (0,0)))(x) #trim 60 pixels off top
-    #x = Lambda(lambda x: x/127.5 - 1.)(x) # normalize and re-center
-    x = BatchNormalization()(x)
     x = Convolution2D(24, (5,5), strides=(2,2), activation='relu')(x)
     x = Convolution2D(32, (5,5), strides=(2,2), activation='relu')(x)
     x = Convolution2D(64, (3,3), strides=(2,2), activation='relu')(x)
@@ -388,19 +405,11 @@ def default_bhv(num_outputs, num_bvh_inputs, input_shape):
     Notes: this model depends on concatenate which failed on keras < 2.0.8
     '''
 
-    from keras.layers import Input, Dense
-    from keras.models import Model
-    from keras.layers import Convolution2D, MaxPooling2D, Reshape, BatchNormalization
-    from keras.layers import Activation, Dropout, Flatten, Cropping2D, Lambda
-    from keras.layers.merge import concatenate
-    
     img_in = Input(shape=input_shape, name='img_in')
     bvh_in = Input(shape=(num_bvh_inputs,), name="behavior_in")
     
     x = img_in
-    x = Cropping2D(cropping=((60,0), (0,0)))(x) #trim 60 pixels off top
-    #x = Lambda(lambda x: x/127.5 - 1.)(x) # normalize and re-center
-    x = BatchNormalization()(x)
+    #x = Cropping2D(cropping=((60,0), (0,0)))(x) #trim 60 pixels off top
     x = Convolution2D(24, (5,5), strides=(2,2), activation='relu')(x)
     x = Convolution2D(32, (5,5), strides=(2,2), activation='relu')(x)
     x = Convolution2D(64, (5,5), strides=(2,2), activation='relu')(x)
@@ -421,7 +430,7 @@ def default_bhv(num_outputs, num_bvh_inputs, input_shape):
     z = Dense(50, activation='relu')(z)
     z = Dropout(.1)(z)
     
-  #categorical output of the angle
+    #categorical output of the angle
     angle_out = Dense(15, activation='softmax', name='angle_out')(z)        # Connect every input with every output and output 15 hidden units. Use Softmax to give percentage. 15 categories and find best one based off percentage 0.0-1.0
     
     #continous output of throttle
@@ -437,22 +446,11 @@ def default_loc(num_outputs, num_locations, input_shape):
     Notes: this model depends on concatenate which failed on keras < 2.0.8
     '''
 
-    from keras.layers import Input, Dense
-    from keras.models import Model
-    from keras.layers import Convolution2D, MaxPooling2D, Reshape, BatchNormalization
-    from keras.layers import Activation, Dropout, Flatten, Cropping2D, Lambda
-    from keras.layers.merge import concatenate
-    from donkeycar.contrib.coordconv.coord import CoordinateChannel2D
-    
     drop = 0.5
 
     img_in = Input(shape=input_shape, name='img_in')
     
     x = img_in
-    #x = Cropping2D(cropping=((10,0), (0,0)))(x) #trim 10 pixels off top
-    #x = Lambda(lambda x: x/127.5 - 1.)(x) # normalize and re-center
-    x = BatchNormalization()(x)
-    x = CoordinateChannel2D()(x)
     x = Convolution2D(24, (5,5), strides=(2,2), activation='relu', name="conv2d_1")(x)
     x = Dropout(drop)(x)
     x = Convolution2D(32, (5,5), strides=(2,2), activation='relu', name="conv2d_2")(x)
@@ -527,22 +525,15 @@ class KerasRNN_LSTM(KerasPilot):
 
 def rnn_lstm(seq_length=3, num_outputs=2, image_shape=(120,160,3)):
 
-    from keras.layers import Input, Dense
-    from keras.models import Sequential
-    from keras.layers import Convolution2D, MaxPooling2D, Reshape, BatchNormalization
-    from keras.layers import Activation, Dropout, Flatten, Cropping2D, Lambda
-    from keras.layers.merge import concatenate
-    from keras.layers import LSTM
-    from keras.layers.wrappers import TimeDistributed as TD
+    #we now expect that cropping done elsewhere. we will adjust our expeected image size here:
+    #input_shape = adjust_input_shape(input_shape, roi_crop)
 
     img_seq_shape = (seq_length,) + image_shape   
     img_in = Input(batch_shape = img_seq_shape, name='img_in')
     drop_out = 0.3
 
     x = Sequential()
-    x.add(TD(Cropping2D(cropping=((40,0), (0,0))), input_shape=img_seq_shape )) #trim 60 pixels off top
-    x.add(TD(BatchNormalization()))
-    x.add(TD(Convolution2D(24, (5,5), strides=(2,2), activation='relu')))
+    x.add(TD(Convolution2D(24, (5,5), strides=(2,2), activation='relu'), input_shape=img_seq_shape))
     x.add(TD(Dropout(drop_out)))
     x.add(TD(Convolution2D(32, (5,5), strides=(2,2), activation='relu')))
     x.add(TD(Dropout(drop_out)))
@@ -557,7 +548,7 @@ def rnn_lstm(seq_length=3, num_outputs=2, image_shape=(120,160,3)):
       
     x.add(LSTM(128, return_sequences=True, name="LSTM_seq"))
     x.add(Dropout(.1))
-    x.add(LSTM(128, return_sequences=False, name="LSTM_out"))
+    x.add(LSTM(128, return_sequences=False, name="LSTM_fin"))
     x.add(Dropout(.1))
     x.add(Dense(128, activation='relu'))
     x.add(Dropout(.1))
@@ -601,11 +592,6 @@ class Keras3D_CNN(KerasPilot):
 
 
 def build_3d_cnn(w, h, d, s, num_outputs):
-    from keras.layers import Input, Dense
-    from keras.models import Sequential
-    from keras.layers import Conv3D, MaxPooling3D, Reshape, BatchNormalization
-    from keras.layers import Activation, Dropout, Flatten, Cropping3D
-
     #Credit: https://github.com/jessecha/DNRacing/blob/master/3D_CNN_Model/model.py
     '''
         w : width
@@ -617,12 +603,12 @@ def build_3d_cnn(w, h, d, s, num_outputs):
 
     model = Sequential()
     #First layer
-    model.add(Cropping3D(cropping=((0,0), (50,10), (0,0)), input_shape=input_shape) ) #trim pixels off top
+    #model.add(Cropping3D(cropping=((0,0), (50,10), (0,0)), input_shape=input_shape) ) #trim pixels off top
     
     # Second layer
     model.add(Conv3D(
         filters=16, kernel_size=(3,3,3), strides=(1,3,3),
-        data_format='channels_last', padding='same')
+        data_format='channels_last', padding='same', input_shape=input_shape)
     )
     model.add(Activation('relu'))
     model.add(MaxPooling3D(
@@ -695,11 +681,7 @@ class KerasLatent(KerasPilot):
 
 
 def default_latent(num_outputs, input_shape):
-    from keras.layers import Input, Dense
-    from keras.models import Model
-    from keras.layers import Convolution2D, MaxPooling2D, Reshape, BatchNormalization
-    from keras.layers import Activation, Dropout, Flatten, Cropping2D, Lambda, Conv2DTranspose
-
+    
     drop = 0.2
     
     img_in = Input(shape=input_shape, name='img_in')

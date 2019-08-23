@@ -60,7 +60,7 @@ class PiCamera(BaseCamera):
     def shutdown(self):
         # indicate that the thread should be stopped
         self.on = False
-        print('stoping PiCamera')
+        print('Stopping PiCamera')
         time.sleep(.5)
         self.stream.close()
         self.rawCapture.close()
@@ -123,6 +123,128 @@ class Webcam(BaseCamera):
         print('stoping Webcam')
         time.sleep(.5)
 
+
+class CSICamera(BaseCamera):
+    '''
+    Camera for Jetson Nano IMX219 based camera
+    Credit: https://github.com/feicccccccc/donkeycar/blob/dev/donkeycar/parts/camera.py
+    '''
+    def gstreamer_pipeline(self,capture_width=120, capture_height=160, display_width=120, display_height=160, framerate=20, flip_method=0) :   
+        return ('nvarguscamerasrc ! ' 
+        'video/x-raw(memory:NVMM), '
+        'width=(int)%d, height=(int)%d, '
+        'format=(string)NV12, framerate=(fraction)%d/1 ! '
+        'nvvidconv flip-method=%d ! '
+        'video/x-raw, width=(int)%d, height=(int)%d, format=(string)BGRx ! '
+        'videoconvert ! '
+        'video/x-raw, format=(string)BGR ! appsink'  % (capture_width,capture_height,framerate,flip_method,display_width,display_height))
+    
+    def __init__(self, image_w=160, image_h=120, image_d=3, framerate=60, gstreamer_flip=0):
+        self.w = image_w
+        self.h = image_h
+        self.running = True
+        self.frame = None
+        self.flip_method = gstreamer_flip
+
+    def init_camera(self):
+        import cv2
+
+        # initialize the camera and stream
+        self.camera = cv2.VideoCapture(\
+            self.gstreamer_pipeline(\
+                display_width=self.w,\
+                    display_height=self.h,\
+                    flip_method=self.flip_method),
+                    cv2.CAP_GSTREAMER)
+
+        self.poll_camera()
+        print('CSICamera loaded.. .warming camera')
+        time.sleep(2)
+        
+    def update(self):
+        self.init_camera()
+        while self.running:
+            self.poll_camera()
+
+    def poll_camera(self):
+        import cv2
+        self.ret , frame = self.camera.read()
+        self.frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+    def run(self):
+        self.poll_camera()
+        return self.frame
+
+    def run_threaded(self):
+        return self.frame
+    
+    def shutdown(self):
+        self.running = False
+        print('stoping CSICamera')
+        time.sleep(.5)
+        del(self.camera)
+
+class V4LCamera(BaseCamera):
+    '''
+    uses the v4l2capture library from this fork for python3 support: https://github.com/atareao/python3-v4l2capture
+    sudo apt-get install libv4l-dev
+    cd python3-v4l2capture
+    python setup.py build
+    pip install -e .
+    '''
+    def __init__(self, image_w=160, image_h=120, image_d=3, framerate=20, dev_fn="/dev/video0", fourcc='MJPG'):
+
+        self.running = True
+        self.frame = None
+        self.image_w = image_w
+        self.image_h = image_h
+        self.dev_fn = dev_fn
+        self.fourcc = fourcc
+
+    def init_video(self):
+        import v4l2capture
+
+        self.video = v4l2capture.Video_device(self.dev_fn)
+
+        # Suggest an image size to the device. The device may choose and
+        # return another size if it doesn't support the suggested one.
+        self.size_x, self.size_y = self.video.set_format(self.image_w, self.image_h, fourcc=self.fourcc)
+
+        print("V4L camera granted %d, %d resolution." % (self.size_x, self.size_y))
+
+        # Create a buffer to store image data in. This must be done before
+        # calling 'start' if v4l2capture is compiled with libv4l2. Otherwise
+        # raises IOError.
+        self.video.create_buffers(30)
+
+        # Send the buffer to the device. Some devices require this to be done
+        # before calling 'start'.
+        self.video.queue_all_buffers()
+
+        # Start the device. This lights the LED if it's a camera that has one.
+        self.video.start()
+
+
+    def update(self):
+        import select
+        from donkeycar.parts.image import JpgToImgArr
+
+        self.init_video()
+        jpg_conv = JpgToImgArr()
+
+        while self.running:
+            # Wait for the device to fill the buffer.
+            select.select((self.video,), (), ())
+            image_data = self.video.read_and_queue()
+            self.frame = jpg_conv.run(image_data)
+
+
+    def shutdown(self):
+        self.running = False
+        time.sleep(0.5)
+
+
+
 class MockCamera(BaseCamera):
     '''
     Fake camera. Returns only a single static frame
@@ -131,7 +253,7 @@ class MockCamera(BaseCamera):
         if image is not None:
             self.frame = image
         else:
-            self.frame = Image.new('RGB', (image_w, image_h))
+            self.frame = np.array(Image.new('RGB', (image_w, image_h)))
 
     def update(self):
         pass
@@ -143,7 +265,7 @@ class ImageListCamera(BaseCamera):
     '''
     Use the images from a tub as a fake camera output
     '''
-    def __init__(self, path_mask='~/d2/data/**/*.jpg'):
+    def __init__(self, path_mask='~/mycar/data/**/*.jpg'):
         self.image_filenames = glob.glob(os.path.expanduser(path_mask), recursive=True)
     
         def get_image_index(fnm):

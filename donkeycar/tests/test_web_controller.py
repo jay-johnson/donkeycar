@@ -11,12 +11,9 @@ def server():
 
 def test_json_output(server):
     result = server.run()
-    print(result)
     json_result = json.dumps(result)
     d = json.loads(json_result)
-    print(d)
     assert d is not None
     assert int(d[0]) == 0
-
 
 

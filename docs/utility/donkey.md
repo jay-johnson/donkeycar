@@ -14,7 +14,7 @@ donkey createcar --path <dir> [--overwrite] [--template <donkey2>]
 * This command may be run from any dir
 * Run on the host computer or the robot
 * It uses the `--path` as the destination dir to create. If `.py` files exist there, it will not overwrite them, unless the optional `--overwrite` is used. 
-* The optional `--template` will specify the template file to start from. For a list of templates, see the `donkeycar/templates` dir
+* The optional `--template` will specify the template file to start from. For a list of templates, see the `donkeycar/templates` dir. This source template will be copied over the `manage.py` for the user.
 
 ## Find Car
 
@@ -67,7 +67,7 @@ This command allows you to create a movie file from the images in a Tub.
 
 Usage:
 ```bash
-donkey makemovie <tub_path> [--out=<tub_movie.mp4>] [--config=<config.py>] [--model=<model path>] [--model_type=(linear|categorical|rnn|imu|behavior|3d)] [--start=0] [--end=-1] [--scale=2] [--salient]
+donkey makemovie --tub=<tub_path> [--out=<tub_movie.mp4>] [--config=<config.py>] [--model=<model path>] [--model_type=(linear|categorical|rnn|imu|behavior|3d)] [--start=0] [--end=-1] [--scale=2] [--salient]
 ```
 
 * Run on the host computer or the robot
@@ -126,26 +126,11 @@ Usage:
 donkey tubplot <tub_path> [--model=<model_path>]
 ```
 
-* This command may be run from `~/d2` dir
+* This command may be run from `~/mycar` dir
 * Run on the host computer
 * Will show a pop-up window showing the plot of steering values in a given tub compared to NN predictions from the trained model
 * When the `--tub` is omitted, it will check all tubs in the default data dir
 
-
-## Simulation Server
-
-This command allows you serve steering and throttle controls to a simulated vehicle using the [Donkey Simulator](/guide/simulator.md).
-
-Usage:
-```bash
-donkey sim --model=<model_path> [--type=<linear|categorical>] [--top_speed=<speed>] [--config=<config.py>]
-```
-
-* This command may be run from `~/d2` dir
-* Run on the host computer
-* Uses the model to make predictions based on images and telemetry from the simulator
-* `--type` can specify whether the model needs angle output to be treated as categorical
-* Top speed can be modified to ascertain stability at different goal speeds
 
 ## Continuous Rsync
 
@@ -164,7 +149,7 @@ cat ~/.ssh/id_rsa.pub | ssh pi@<your pi ip> 'cat >> .ssh/authorized_keys'
 ```
 * If you don't have a id_rsa.pub then google how to make one
 * Edit your config.py and make sure the fields PI_USERNAME, PI_HOSTNAME, PI_DONKEY_ROOT are setup. Only on windows, you need to set PI_PASSWD.
-* This command may be run from `~/d2` dir
+* This command may be run from `~/mycar` dir
 
 ## Continuous Train
 
@@ -175,7 +160,7 @@ Usage:
 donkey contrain [--tub=<data_path>] [--model=<path to model>] [--transfer=<path to model>] [--type=<linear|categorical|rnn|imu|behavior|3d>] [--aug]
 ```
 
-* This command may be run from `~/d2` dir
+* This command may be run from `~/mycar` dir
 * Run on the host computer
 * First copy your public key to the pi so you don't need a password for each rsync:
 ```bash
@@ -199,13 +184,31 @@ Usage:
 donkey createjs
 ```
 
-* This command may be run from `~/d2` dir
+* This command may be run from `~/mycar` dir
 * Run on the pi
 * First make sure the OS can access your device. The utility `jstest` can be useful here. Installed via: `sudo apt install joystick`
 * Debian commonly creates the joystick device file at /dev/input/js0. If not, find out where.
 * Run the command `donkey createjs` and it will create a file, by default my_joystick.py. Drop that next to your manage.py
-* Modify manage.py to add: `from my_joystick import MyJoystickController`
-* Modify manage.py to replace `cont_class = PS3JoystickController` with `cont_class = MyJoystickController`
+* Modify manage.py to replace:
+```
+    from donkeycar.parts.controller import get_js_controller
+        
+    ctr = get_js_controller(cfg)
+``` 
+
+with 
+
+
+```
+    from my_joystick import MyJoystickController
+
+    ctr = MyJoystickController(throttle_dir=cfg.JOYSTICK_THROTTLE_DIR,
+                                throttle_scale=cfg.JOYSTICK_MAX_THROTTLE,
+                                steering_scale=cfg.JOYSTICK_STEERING_SCALE,
+                                auto_record_on_throttle=cfg.AUTO_RECORD_ON_THROTTLE)
+    
+    ctr.set_deadzone(cfg.JOYSTICK_DEADZONE)
+```
 
 
 ## Visualize CNN filter activations
