@@ -192,6 +192,7 @@ eval set -- "$PARAMS"
 export DCREPO="${dcrepo}"
 export DCBRANCH="${dcbranch}"
 # temp storage pathing for download and extraction:
+export DCGDOWNLOADDIR="${download_dir}"
 export DCGDOWNLOADPATH="${download_dir}/google-fileid-${DCGID}.zip"
 export DCIMAGE="${download_dir}/google-fileid-${DCGID}.img"
 

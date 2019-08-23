@@ -24,9 +24,12 @@ if [[ "${DCIMAGENAME}" != "" ]]; then
     dc_extracted_image="${DCIMAGENAME}"
     dc_base_image="$(dirname ${DCIMAGENAME})/${dc_extracted_image}"
 fi
-output_dir="${DCPATH}/files"
+output_dir="${DCPATH}/image_files"
 if [[ "${DCSTORAGEDIR}" != "" ]]; then
     output_dir="${DCSTORAGEDIR}"
+fi
+if [[ "${DCGDOWNLOADDIR}" != "" ]]; then
+    output_dir="${DCGDOWNLOADDIR}"
 fi
 dc_image_file="${dc_extracted_image}"
 if [[ "${DCIMAGE}" != "" ]]; then
